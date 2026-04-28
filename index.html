@@ -174,6 +174,30 @@
             font-size: 1.2rem;
         }
 
+        .status-message {
+            display: none;
+            margin-bottom: 15px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            white-space: pre-line;
+        }
+
+        .status-message.error {
+            display: block;
+            background: #fff1f0;
+            border: 1px solid #ffccc7;
+            color: #b42318;
+        }
+
+        .status-message.info {
+            display: block;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+        }
+
         .spinner {
             width: 40px;
             height: 40px;
@@ -221,14 +245,16 @@
         <div class="content">
             <div class="upload-area" id="uploadArea">
                 <div class="upload-icon">📁</div>
-                <div class="upload-text">Drop your image here or click to browse</div>
-                <div class="upload-subtext">Supports JPG, PNG, GIF, and WebP formats</div>
-                <input type="file" id="fileInput" accept="image/*" multiple>
+                <div class="upload-text">Drop your images or a ZIP archive here, or click to browse</div>
+                <div class="upload-subtext">Supports JPG, PNG, GIF, WebP, and ZIP archives that contain images</div>
+                <input type="file" id="fileInput" accept="image/*,.zip,application/zip,application/x-zip-compressed" multiple>
             </div>
+
+            <div id="statusMessage" class="status-message"></div>
             
             <div id="processing" class="processing" style="display: none;">
                 <div class="spinner"></div>
-                Processing images...
+                <div id="processingText">Processing images...</div>
             </div>
             
             <div id="imageContainer" class="image-container">
@@ -241,17 +267,67 @@
         </div>
     </div>
 
+    <script src="fflate.min.js"></script>
     <script>
+        const TARGET_WIDTH = 1920;
+        const TARGET_HEIGHT = 1080;
+        const TARGET_RATIO = TARGET_WIDTH / TARGET_HEIGHT;
+        const DEFAULT_ALIGNMENT = 'middle';
+        const DEFAULT_VERTICAL_POSITION = 50;
+        const DEFAULT_BLUR_ZOOM = 100;
+        const DEFAULT_BACKGROUND_VALUE = 50;
+
         let processedImages = [];
+        let isProcessing = false;
 
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
         const imageContainer = document.getElementById('imageContainer');
         const imagesGrid = document.getElementById('imagesGrid');
         const processing = document.getElementById('processing');
+        const processingText = document.getElementById('processingText');
+        const statusMessage = document.getElementById('statusMessage');
 
-        // Upload area interactions
-        uploadArea.addEventListener('click', () => fileInput.click());
+        function isZipFile(file) {
+            const lowerName = file.name.toLowerCase();
+            return lowerName.endsWith('.zip') || file.type === 'application/zip' || file.type === 'application/x-zip-compressed';
+        }
+
+        function inferImageMimeType(filename) {
+            const lowerName = filename.toLowerCase();
+
+            if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) {
+                return 'image/jpeg';
+            }
+
+            if (lowerName.endsWith('.png')) {
+                return 'image/png';
+            }
+
+            if (lowerName.endsWith('.gif')) {
+                return 'image/gif';
+            }
+
+            if (lowerName.endsWith('.webp')) {
+                return 'image/webp';
+            }
+
+            return '';
+        }
+
+        function isSupportedImageFile(file) {
+            return file.type.startsWith('image/') || Boolean(inferImageMimeType(file.name));
+        }
+
+        function isSupportedInputFile(file) {
+            return isSupportedImageFile(file) || isZipFile(file);
+        }
+
+        uploadArea.addEventListener('click', () => {
+            if (!isProcessing) {
+                fileInput.click();
+            }
+        });
         uploadArea.addEventListener('dragover', handleDragOver);
         uploadArea.addEventListener('dragleave', handleDragLeave);
         uploadArea.addEventListener('drop', handleDrop);
@@ -259,7 +335,9 @@
 
         function handleDragOver(e) {
             e.preventDefault();
-            uploadArea.classList.add('dragover');
+            if (!isProcessing) {
+                uploadArea.classList.add('dragover');
+            }
         }
 
         function handleDragLeave(e) {
@@ -270,248 +348,422 @@
         function handleDrop(e) {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
-            const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+            if (isProcessing) {
+                return;
+            }
+
+            const files = Array.from(e.dataTransfer.files).filter(isSupportedInputFile);
             if (files.length > 0) {
                 processFiles(files);
+            } else {
+                showStatus('Drop one or more JPG, PNG, GIF, WebP images, or a ZIP archive that contains images to get started.', 'error');
             }
         }
 
         function handleFileSelect(e) {
-            const files = Array.from(e.target.files);
+            if (isProcessing) {
+                fileInput.value = '';
+                return;
+            }
+
+            const files = Array.from(e.target.files).filter(isSupportedInputFile);
+            fileInput.value = '';
+
             if (files.length > 0) {
                 processFiles(files);
+            } else {
+                showStatus('Please choose at least one supported image file or ZIP archive.', 'error');
             }
         }
 
-        function processFiles(files) {
-            processing.style.display = 'block';
-            imageContainer.style.display = 'none';
-            
-            const promises = files.map(file => processImage(file));
-            
-            Promise.all(promises).then(() => {
-                processing.style.display = 'none';
-                imageContainer.style.display = 'block';
+        async function processFiles(files) {
+            if (!files.length) {
+                return;
+            }
+
+            const failures = [];
+            const notices = [];
+            isProcessing = true;
+            setProcessingState(true, `Processing 1 of ${files.length}...`);
+            hideStatus();
+
+            try {
+                const expandedInputs = [];
+
+                for (let index = 0; index < files.length; index += 1) {
+                    const file = files[index];
+
+                    if (isZipFile(file)) {
+                        setProcessingState(true, `Extracting ZIP ${index + 1} of ${files.length}: ${file.name}`);
+                        await nextFrame();
+
+                        try {
+                            const extraction = await extractSupportedFilesFromZip(file);
+
+                            if (!extraction.files.length) {
+                                notices.push(`${file.name}: no supported images were found in the archive.`);
+                            } else {
+                                expandedInputs.push(...extraction.files);
+
+                                if (extraction.skippedEntries.length) {
+                                    notices.push(`${file.name}: imported ${extraction.files.length} image(s) and skipped ${extraction.skippedEntries.length} non-image file(s).`);
+                                }
+                            }
+                        } catch (error) {
+                            failures.push(`${file.name}: ${error.message}`);
+                        }
+
+                        continue;
+                    }
+
+                    expandedInputs.push({
+                        file,
+                        displayName: file.name
+                    });
+                }
+
+                for (let index = 0; index < expandedInputs.length; index += 1) {
+                    const input = expandedInputs[index];
+                    setProcessingState(true, `Processing ${index + 1} of ${expandedInputs.length}: ${input.displayName}`);
+                    await nextFrame();
+
+                    try {
+                        processedImages.push(await processImage(input.file, input.displayName));
+                    } catch (error) {
+                        failures.push(`${input.displayName}: ${error.message}`);
+                    }
+                }
+
                 displayImages();
+
+                if (!processedImages.length) {
+                    imageContainer.style.display = 'none';
+                } else {
+                    imageContainer.style.display = 'block';
+                }
+
+                if (failures.length > 0) {
+                    showStatus(`Some files could not be processed:\n${failures.join('\n')}`, 'error');
+                } else if (notices.length > 0) {
+                    showStatus(notices.join('\n'), 'info');
+                } else {
+                    hideStatus();
+                }
+            } finally {
+                isProcessing = false;
+                setProcessingState(false);
+            }
+        }
+
+        function unzipArchive(zipData) {
+            return new Promise((resolve, reject) => {
+                if (!window.fflate || typeof window.fflate.unzipSync !== 'function') {
+                    reject(new Error('ZIP support is unavailable because the unzip library did not load'));
+                    return;
+                }
+
+                try {
+                    resolve(window.fflate.unzipSync(zipData));
+                } catch (error) {
+                    reject(error);
+                }
             });
         }
 
-        function processImage(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const croppedVersions = {
-                            top: cropTo16x9(img, 'top'),
-                            middle: cropTo16x9(img, 'middle'),
-                            bottom: cropTo16x9(img, 'bottom')
-                        };
-                        const blurVersion = createBlurBackground(img, 50, 50, 50); // Default 50% for all settings
-                        
-                        processedImages.push({
-                            original: e.target.result,
-                            cropped: croppedVersions,
-                            blur: blurVersion,
-                            originalImage: img, // Store original image for regenerating blur versions
-                            filename: file.name,
-                            currentAlignment: 'middle',
-                            currentMethod: 'crop',
-                            backgroundContrast: 50,
-                            backgroundSaturation: 50,
-                            backgroundBrightness: 50
-                        });
-                        resolve();
-                    };
-                    img.src = e.target.result;
+        async function extractSupportedFilesFromZip(zipFile) {
+            const zipData = new Uint8Array(await zipFile.arrayBuffer());
+            const extractedEntries = await unzipArchive(zipData);
+            const files = [];
+            const skippedEntries = [];
+
+            Object.entries(extractedEntries).forEach(([entryName, entryData]) => {
+                if (entryName.endsWith('/') || entryName.startsWith('__MACOSX/')) {
+                    return;
+                }
+
+                const mimeType = inferImageMimeType(entryName);
+
+                if (!mimeType) {
+                    skippedEntries.push(entryName);
+                    return;
+                }
+
+                const blob = new Blob([entryData], { type: mimeType });
+                const shortName = entryName.split('/').pop() || entryName;
+
+                files.push({
+                    file: new File([blob], shortName, { type: mimeType }),
+                    displayName: `${zipFile.name} / ${entryName}`
+                });
+            });
+
+            return {
+                files,
+                skippedEntries
+            };
+        }
+
+        function processImage(file, displayName = file.name) {
+            return new Promise((resolve, reject) => {
+                const objectUrl = URL.createObjectURL(file);
+                const img = new Image();
+
+                img.onload = function() {
+                    resolve({
+                        original: objectUrl,
+                        originalImage: img,
+                        filename: displayName,
+                        currentAlignment: DEFAULT_ALIGNMENT,
+                        customVerticalPosition: DEFAULT_VERTICAL_POSITION,
+                        currentMethod: 'crop',
+                        blurAlignment: DEFAULT_ALIGNMENT,
+                        blurCustomPosition: DEFAULT_VERTICAL_POSITION,
+                        blurZoom: DEFAULT_BLUR_ZOOM,
+                        backgroundContrast: DEFAULT_BACKGROUND_VALUE,
+                        backgroundSaturation: DEFAULT_BACKGROUND_VALUE,
+                        backgroundBrightness: DEFAULT_BACKGROUND_VALUE,
+                        cropCache: {},
+                        blurCacheKey: '',
+                        blur: null
+                    });
                 };
-                reader.readAsDataURL(file);
+
+                img.onerror = function() {
+                    URL.revokeObjectURL(objectUrl);
+                    reject(new Error('the image could not be decoded'));
+                };
+
+                img.src = objectUrl;
             });
         }
 
-        function createBlurBackground(img, contrast = 50, saturation = 50, brightness = 50, alignment = 'middle', customPosition = 50, zoom = 100) {
+        function setProcessingState(active, message = 'Processing images...') {
+            processing.style.display = active ? 'block' : 'none';
+            uploadArea.style.pointerEvents = active ? 'none' : '';
+            uploadArea.style.opacity = active ? '0.7' : '';
+            processingText.textContent = message;
+        }
+
+        function showStatus(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+        }
+
+        function hideStatus() {
+            statusMessage.textContent = '';
+            statusMessage.className = 'status-message';
+        }
+
+        function nextFrame() {
+            return new Promise(resolve => requestAnimationFrame(resolve));
+        }
+
+        function clampNumber(value, min, max, fallback) {
+            const numericValue = Number(value);
+
+            if (!Number.isFinite(numericValue)) {
+                return fallback;
+            }
+
+            return Math.min(max, Math.max(min, numericValue));
+        }
+
+        function getCropImage(imageData, alignment = imageData.currentAlignment, customPosition = imageData.customVerticalPosition) {
+            const normalizedAlignment = alignment === 'custom' ? 'custom' : ['top', 'middle', 'bottom'].includes(alignment) ? alignment : DEFAULT_ALIGNMENT;
+            const safeCustomPosition = clampNumber(customPosition, 0, 100, DEFAULT_VERTICAL_POSITION);
+            const cacheKey = normalizedAlignment === 'custom' ? `custom:${safeCustomPosition}` : normalizedAlignment;
+
+            if (!imageData.cropCache[cacheKey]) {
+                imageData.cropCache[cacheKey] = cropTo16x9(imageData.originalImage, normalizedAlignment, safeCustomPosition);
+            }
+
+            return imageData.cropCache[cacheKey];
+        }
+
+        function getBlurImage(imageData) {
+            const alignment = imageData.blurAlignment === 'custom' ? 'custom' : ['top', 'middle', 'bottom'].includes(imageData.blurAlignment) ? imageData.blurAlignment : DEFAULT_ALIGNMENT;
+            const customPosition = clampNumber(imageData.blurCustomPosition, 0, 100, DEFAULT_VERTICAL_POSITION);
+            const zoom = clampNumber(imageData.blurZoom, 25, 150, DEFAULT_BLUR_ZOOM);
+            const contrast = clampNumber(imageData.backgroundContrast, 0, 100, DEFAULT_BACKGROUND_VALUE);
+            const saturation = clampNumber(imageData.backgroundSaturation, 0, 100, DEFAULT_BACKGROUND_VALUE);
+            const brightness = clampNumber(imageData.backgroundBrightness, 0, 100, DEFAULT_BACKGROUND_VALUE);
+            const cacheKey = [alignment, customPosition, zoom, contrast, saturation, brightness].join(':');
+
+            if (imageData.blurCacheKey !== cacheKey) {
+                imageData.blur = createBlurBackground(
+                    imageData.originalImage,
+                    contrast,
+                    saturation,
+                    brightness,
+                    alignment,
+                    customPosition,
+                    zoom
+                );
+                imageData.blurCacheKey = cacheKey;
+            }
+
+            return imageData.blur;
+        }
+
+        function getCurrentImageOutput(imageData) {
+            if (imageData.currentMethod === 'blur') {
+                return getBlurImage(imageData);
+            }
+
+            return getCropImage(imageData, imageData.currentAlignment, imageData.customVerticalPosition);
+        }
+
+        function createBlurBackground(img, contrast = DEFAULT_BACKGROUND_VALUE, saturation = DEFAULT_BACKGROUND_VALUE, brightness = DEFAULT_BACKGROUND_VALUE, alignment = DEFAULT_ALIGNMENT, customPosition = DEFAULT_VERTICAL_POSITION, zoom = DEFAULT_BLUR_ZOOM) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
-            // Set canvas to 16:9 ratio
-            const targetRatio = 16 / 9;
-            canvas.width = 1920;
-            canvas.height = 1080;
-            
-            // Calculate background image dimensions to fill canvas while maintaining aspect ratio (crop, don't stretch)
-            // Add extra padding to account for blur edge effects
-            const blurPadding = 160; // 2x blur radius for safety
+
+            canvas.width = TARGET_WIDTH;
+            canvas.height = TARGET_HEIGHT;
+
+            const blurPadding = 160;
             const imageRatio = img.width / img.height;
-            let bgWidth, bgHeight, bgX, bgY;
-            
-            if (imageRatio > targetRatio) {
-                // Image is wider than target - fit to height and crop sides
+            let bgWidth;
+            let bgHeight;
+            let bgX;
+            let bgY;
+
+            if (imageRatio > TARGET_RATIO) {
                 bgHeight = canvas.height + (blurPadding * 2);
                 bgWidth = bgHeight * imageRatio;
                 bgX = (canvas.width - bgWidth) / 2;
                 bgY = -blurPadding;
             } else {
-                // Image is taller than target - fit to width and crop top/bottom
                 bgWidth = canvas.width + (blurPadding * 2);
                 bgHeight = bgWidth / imageRatio;
                 bgX = -blurPadding;
                 bgY = (canvas.height - bgHeight) / 2;
             }
-            
-            // Calculate filter values based on separate controls
-            const contrastValue = 50 + (contrast * 0.5); // Range: 50% to 100%
-            const saturationValue = saturation; // Direct range: 0% to 100%
-            const brightnessValue = 50 + (brightness * 0.5); // Range: 50% to 100%
-            
-            // Draw blurred background with separate contrast, saturation, and brightness adjustments
+
+            const contrastValue = 50 + (contrast * 0.5);
+            const saturationValue = saturation;
+            const brightnessValue = 50 + (brightness * 0.5);
+
             ctx.filter = `blur(80px) contrast(${contrastValue}%) saturate(${saturationValue}%) brightness(${brightnessValue}%)`;
             ctx.drawImage(img, bgX, bgY, bgWidth, bgHeight);
-            
-            // Reset filter for sharp overlay
             ctx.filter = 'none';
-            
-            // Calculate base overlay dimensions (before zoom)
-            let baseOverlayWidth, baseOverlayHeight;
-            
-            if (imageRatio > targetRatio) {
-                // Image is wider - fit to canvas width
+
+            let baseOverlayWidth;
+            let baseOverlayHeight;
+
+            if (imageRatio > TARGET_RATIO) {
                 baseOverlayWidth = canvas.width;
                 baseOverlayHeight = canvas.width / imageRatio;
             } else {
-                // Image is taller - fit to canvas height
                 baseOverlayHeight = canvas.height;
                 baseOverlayWidth = canvas.height * imageRatio;
             }
-            
-            // Apply zoom factor (25% to 150%)
-            const zoomFactor = zoom / 100;
+
+            const zoomFactor = clampNumber(zoom, 25, 150, DEFAULT_BLUR_ZOOM) / 100;
             const overlayWidth = baseOverlayWidth * zoomFactor;
             const overlayHeight = baseOverlayHeight * zoomFactor;
-            
-            // Calculate position with zoom applied
-            let overlayX, overlayY;
-            
-            if (imageRatio > targetRatio) {
-                // Image is wider - center horizontally, apply vertical alignment
-                overlayX = (canvas.width - overlayWidth) / 2;
-                
-                // Apply vertical alignment for wide images
-                switch (alignment) {
-                    case 'top':
-                        overlayY = 0;
-                        break;
-                    case 'bottom':
-                        overlayY = canvas.height - overlayHeight;
-                        break;
-                    case 'custom':
-                        const maxYOffset = canvas.height - overlayHeight;
-                        overlayY = maxYOffset * (customPosition / 100);
-                        break;
-                    case 'middle':
-                    default:
-                        overlayY = (canvas.height - overlayHeight) / 2;
-                        break;
-                }
-            } else {
-                // Image is taller - apply vertical alignment here too!
-                overlayX = (canvas.width - overlayWidth) / 2;
-                
-                // Apply vertical alignment for tall images as well
-                switch (alignment) {
-                    case 'top':
-                        overlayY = 0;
-                        break;
-                    case 'bottom':
-                        overlayY = canvas.height - overlayHeight;
-                        break;
-                    case 'custom':
-                        const maxYOffset = canvas.height - overlayHeight;
-                        overlayY = maxYOffset * (customPosition / 100);
-                        break;
-                    case 'middle':
-                    default:
-                        overlayY = (canvas.height - overlayHeight) / 2;
-                        break;
-                }
+            const overlayX = (canvas.width - overlayWidth) / 2;
+            const maxYOffset = canvas.height - overlayHeight;
+            const safeAlignment = alignment === 'custom' ? 'custom' : ['top', 'middle', 'bottom'].includes(alignment) ? alignment : DEFAULT_ALIGNMENT;
+            let overlayY;
+
+            switch (safeAlignment) {
+                case 'top':
+                    overlayY = 0;
+                    break;
+                case 'bottom':
+                    overlayY = maxYOffset;
+                    break;
+                case 'custom':
+                    overlayY = maxYOffset * (clampNumber(customPosition, 0, 100, DEFAULT_VERTICAL_POSITION) / 100);
+                    break;
+                case 'middle':
+                default:
+                    overlayY = maxYOffset / 2;
+                    break;
             }
-            
-            // Add soft drop shadow to the foreground image
+
             ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
             ctx.shadowBlur = 40;
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 8;
-            
-            // Draw the sharp original image on top with shadow and zoom
             ctx.drawImage(img, overlayX, overlayY, overlayWidth, overlayHeight);
-            
-            // Reset shadow for any future drawing
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 0;
-            
+
             return canvas.toDataURL('image/png', 0.9);
         }
 
-        function cropTo16x9(img, alignment = 'middle') {
+        function cropTo16x9(img, alignment = DEFAULT_ALIGNMENT, customPosition = DEFAULT_VERTICAL_POSITION) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
-            const targetRatio = 16 / 9;
+
             const sourceRatio = img.width / img.height;
-            
-            let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
-            
-            if (sourceRatio > targetRatio) {
-                // Image is wider than 16:9, crop the width (horizontal alignment doesn't change)
-                sourceWidth = img.height * targetRatio;
+            let sourceX = 0;
+            let sourceY = 0;
+            let sourceWidth = img.width;
+            let sourceHeight = img.height;
+
+            if (sourceRatio > TARGET_RATIO) {
+                sourceWidth = img.height * TARGET_RATIO;
                 sourceX = (img.width - sourceWidth) / 2;
             } else {
-                // Image is taller than 16:9, crop the height based on alignment
-                sourceHeight = img.width / targetRatio;
-                
+                sourceHeight = img.width / TARGET_RATIO;
+                const maxOffset = img.height - sourceHeight;
+
                 switch (alignment) {
                     case 'top':
                         sourceY = 0;
                         break;
                     case 'bottom':
-                        sourceY = img.height - sourceHeight;
+                        sourceY = maxOffset;
+                        break;
+                    case 'custom':
+                        sourceY = maxOffset * (clampNumber(customPosition, 0, 100, DEFAULT_VERTICAL_POSITION) / 100);
                         break;
                     case 'middle':
                     default:
-                        sourceY = (img.height - sourceHeight) / 2;
+                        sourceY = maxOffset / 2;
                         break;
                 }
             }
-            
-            // Set canvas size to maintain good quality
-            const maxWidth = 1920;
-            const maxHeight = 1080;
-            
-            if (sourceWidth > maxWidth) {
-                canvas.width = maxWidth;
-                canvas.height = maxWidth / targetRatio;
+
+            if (sourceWidth > TARGET_WIDTH) {
+                canvas.width = TARGET_WIDTH;
+                canvas.height = TARGET_HEIGHT;
             } else {
-                canvas.width = sourceWidth;
-                canvas.height = sourceHeight;
+                canvas.width = Math.round(sourceWidth);
+                canvas.height = Math.round(sourceHeight);
             }
-            
+
             ctx.drawImage(
                 img,
-                sourceX, sourceY, sourceWidth, sourceHeight,
-                0, 0, canvas.width, canvas.height
+                sourceX,
+                sourceY,
+                sourceWidth,
+                sourceHeight,
+                0,
+                0,
+                canvas.width,
+                canvas.height
             );
-            
+
             return canvas.toDataURL('image/png', 0.9);
         }
 
         function displayImages() {
             imagesGrid.innerHTML = '';
-            
+
             processedImages.forEach((imageData, index) => {
                 const imageSection = document.createElement('div');
                 imageSection.className = 'image-section';
-                
+
+                const showCropControls = imageData.currentMethod === 'crop';
+                const showCustomCropControls = showCropControls && imageData.currentAlignment === 'custom';
+                const showBlurControls = imageData.currentMethod === 'blur';
+                const showBlurCustomControls = showBlurControls && imageData.blurAlignment === 'custom';
+
                 imageSection.innerHTML = `
                     <h3>Image ${index + 1}: ${imageData.filename}</h3>
                     <div class="image-grid">
@@ -520,10 +772,10 @@
                             <img src="${imageData.original}" alt="Original" class="original-image">
                         </div>
                         <div>
-                            <h4 style="text-align: center; margin-bottom: 10px; color: #667eea;">16:9 Cropped</h4>
+                            <h4 style="text-align: center; margin-bottom: 10px; color: #667eea;">16:9 Output</h4>
                             <div style="position: relative; display: inline-block;">
-                                <img src="${imageData.cropped.middle}" alt="Cropped" class="cropped-image">
-                                <div id="cropPreview${index}" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;">
+                                <img src="${getCurrentImageOutput(imageData)}" alt="Processed output" class="cropped-image">
+                                <div id="cropPreview${index}" style="display: ${showCustomCropControls ? 'block' : 'none'}; position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;">
                                     <canvas id="previewCanvas${index}" style="width: 100%; height: 100%; object-fit: contain;"></canvas>
                                 </div>
                             </div>
@@ -532,82 +784,82 @@
                     <div style="text-align: center; margin-top: 15px;">
                         <div style="margin-bottom: 15px;">
                             <label style="color: #333; font-weight: 600; margin-right: 15px;">Crop Method:</label>
-                                                            <select onchange="updateCropMethod(${index}, this.value)" style="padding: 4px 8px; border-radius: 4px; border: 2px solid #dee2e6; font-size: 0.85rem; margin-right: 10px;">
-                                <option value="crop">Crop to Fit</option>
-                                <option value="blur">Blur Background</option>
+                            <select onchange="updateCropMethod(${index}, this.value)" style="padding: 4px 8px; border-radius: 4px; border: 2px solid #dee2e6; font-size: 0.85rem; margin-right: 10px;">
+                                <option value="crop" ${imageData.currentMethod === 'crop' ? 'selected' : ''}>Crop to Fit</option>
+                                <option value="blur" ${imageData.currentMethod === 'blur' ? 'selected' : ''}>Blur Background</option>
                             </select>
-                            <span id="alignmentControl${index}">
+                            <span id="alignmentControl${index}" style="display: ${showCropControls ? 'inline' : 'none'};">
                                 <label style="color: #333; font-weight: 600; margin-right: 15px;">Vertical Alignment:</label>
                                 <select onchange="updateCropAlignment(${index}, this.value)" style="padding: 4px 8px; border-radius: 4px; border: 2px solid #dee2e6; font-size: 0.85rem;">
-                                    <option value="top">Top</option>
-                                    <option value="middle" selected>Middle</option>
-                                    <option value="bottom">Bottom</option>
-                                    <option value="custom">Custom</option>
+                                    <option value="top" ${imageData.currentAlignment === 'top' ? 'selected' : ''}>Top</option>
+                                    <option value="middle" ${imageData.currentAlignment === 'middle' ? 'selected' : ''}>Middle</option>
+                                    <option value="bottom" ${imageData.currentAlignment === 'bottom' ? 'selected' : ''}>Bottom</option>
+                                    <option value="custom" ${imageData.currentAlignment === 'custom' ? 'selected' : ''}>Custom</option>
                                 </select>
                             </span>
                         </div>
-                        <div id="customAlignmentControl${index}" style="margin-bottom: 15px; display: none;">
+                        <div id="customAlignmentControl${index}" style="margin-bottom: 15px; display: ${showCustomCropControls ? 'block' : 'none'};">
                             <div style="margin-bottom: 10px;">
                                 <label style="color: #333; font-weight: 600; margin-right: 15px;">Vertical Position:</label>
-                                <input type="range" id="verticalSlider${index}" min="0" max="100" value="50" 
+                                <input type="range" id="verticalSlider${index}" min="0" max="100" value="${imageData.customVerticalPosition}" 
                                        oninput="updateCustomAlignmentPreview(${index}, this.value)"
                                        onchange="updateCustomAlignment(${index}, this.value)"
                                        style="width: 200px; margin-right: 10px;">
-                                <span id="verticalValue${index}" style="color: #666; font-size: 0.9rem;">50%</span>
+                                <span id="verticalValue${index}" style="color: #666; font-size: 0.9rem;">${imageData.customVerticalPosition}%</span>
                             </div>
                             <div style="font-size: 0.85rem; color: #888; font-style: italic;">
                                 0% = top of image, 50% = center, 100% = bottom of image
                             </div>
                         </div>
-                        <div id="blurControls${index}" style="margin-bottom: 15px; display: none;">
+                        <div id="blurControls${index}" style="margin-bottom: 15px; display: ${showBlurControls ? 'block' : 'none'};">
                             <div style="margin-bottom: 10px;">
                                 <label style="color: #333; font-weight: 600; margin-right: 15px;">Foreground Position:</label>
                                 <select id="blurAlignmentSelect${index}" onchange="updateBlurAlignment(${index}, this.value)" style="padding: 4px 8px; border-radius: 4px; border: 2px solid #dee2e6; font-size: 0.85rem; margin-right: 10px;">
-                                    <option value="top">Top</option>
-                                    <option value="middle" selected>Middle</option>
-                                    <option value="bottom">Bottom</option>
-                                    <option value="custom">Custom</option>
+                                    <option value="top" ${imageData.blurAlignment === 'top' ? 'selected' : ''}>Top</option>
+                                    <option value="middle" ${imageData.blurAlignment === 'middle' ? 'selected' : ''}>Middle</option>
+                                    <option value="bottom" ${imageData.blurAlignment === 'bottom' ? 'selected' : ''}>Bottom</option>
+                                    <option value="custom" ${imageData.blurAlignment === 'custom' ? 'selected' : ''}>Custom</option>
                                 </select>
                             </div>
-                            <div id="blurCustomPosition${index}" style="margin-bottom: 15px; display: none;">
+                            <div id="blurCustomPosition${index}" style="margin-bottom: 15px; display: ${showBlurCustomControls ? 'block' : 'none'};">
                                 <label style="color: #333; font-weight: 600; margin-right: 15px;">Vertical Position:</label>
-                                <input type="range" id="blurVerticalSlider${index}" min="0" max="100" value="50" 
+                                <input type="range" id="blurVerticalSlider${index}" min="0" max="100" value="${imageData.blurCustomPosition}" 
                                        oninput="updateBlurCustomPosition(${index}, this.value)"
                                        onchange="updateBlurCustomPosition(${index}, this.value)"
                                        style="width: 200px; margin-right: 10px;">
-                                <span id="blurVerticalValue${index}" style="color: #666; font-size: 0.9rem;">50%</span>
+                                <span id="blurVerticalValue${index}" style="color: #666; font-size: 0.9rem;">${imageData.blurCustomPosition}%</span>
                             </div>
                             <div style="margin-bottom: 15px;">
                                 <label style="color: #333; font-weight: 600; margin-right: 15px;">Foreground Zoom:</label>
-                                <input type="range" id="blurZoomSlider${index}" min="25" max="150" value="100" 
+                                <input type="range" id="blurZoomSlider${index}" min="25" max="150" value="${imageData.blurZoom}" 
                                        oninput="updateBlurZoom(${index}, this.value)"
                                        onchange="updateBlurZoom(${index}, this.value)"
                                        style="width: 200px; margin-right: 10px;">
-                                <span id="blurZoomValue${index}" style="color: #666; font-size: 0.9rem;">100%</span>
+                                <span id="blurZoomValue${index}" style="color: #666; font-size: 0.9rem;">${imageData.blurZoom}%</span>
                             </div>
                             <div style="font-size: 0.85rem; color: #888; font-style: italic; margin-bottom: 15px;">
                                 Zoom: 25% = very small, 100% = original fit, 150% = zoomed in close-up
                             </div>
                             <div style="margin-bottom: 10px;">
                                 <label style="color: #333; font-weight: 600; margin-right: 15px;">Background Contrast:</label>
-                                <input type="range" id="contrastSlider${index}" min="0" max="100" value="50" 
+                                <input type="range" id="contrastSlider${index}" min="0" max="100" value="${imageData.backgroundContrast}" 
                                        onchange="updateBackgroundSettings(${index})"
                                        style="width: 150px; margin-right: 10px;">
-                                <span id="contrastValue${index}" style="color: #666; font-size: 0.9rem;">50%</span>
+                                <span id="contrastValue${index}" style="color: #666; font-size: 0.9rem;">${imageData.backgroundContrast}%</span>
                             </div>
                             <div style="margin-bottom: 10px;">
                                 <label style="color: #333; font-weight: 600; margin-right: 15px;">Background Saturation:</label>
-                                <input type="range" id="saturationSlider${index}" min="0" max="100" value="50" 
+                                <input type="range" id="saturationSlider${index}" min="0" max="100" value="${imageData.backgroundSaturation}" 
                                        onchange="updateBackgroundSettings(${index})"
                                        style="width: 150px; margin-right: 10px;">
-                                <span id="saturationValue${index}" style="color: #666; font-size: 0.9rem;">50%</span>
+                                <span id="saturationValue${index}" style="color: #666; font-size: 0.9rem;">${imageData.backgroundSaturation}%</span>
                             </div>
                             <div style="margin-bottom: 10px;">
                                 <label style="color: #333; font-weight: 600; margin-right: 15px;">Background Brightness:</label>
-                                <input type="range" id="brightnessSlider${index}" min="0" max="100" value="50" 
+                                <input type="range" id="brightnessSlider${index}" min="0" max="100" value="${imageData.backgroundBrightness}" 
                                        onchange="updateBackgroundSettings(${index})"
                                        style="width: 150px; margin-right: 10px;">
-                                <span id="brightnessValue${index}" style="color: #666; font-size: 0.9rem;">50%</span>
+                                <span id="brightnessValue${index}" style="color: #666; font-size: 0.9rem;">${imageData.backgroundBrightness}%</span>
                             </div>
                             <div style="font-size: 0.85rem; color: #888; font-style: italic;">
                                 Complete control: position, zoom, and background styling for perfect composition
@@ -618,428 +870,231 @@
                         </button>
                     </div>
                 `;
-                
+
                 imagesGrid.appendChild(imageSection);
+            });
+
+            requestAnimationFrame(() => {
+                processedImages.forEach((imageData, index) => {
+                    if (imageData.currentMethod === 'crop' && imageData.currentAlignment === 'custom') {
+                        initializeCropPreview(index);
+                    }
+                });
             });
         }
 
-        function updateCropMethod(imageIndex, method) {
+        function refreshOutput(imageIndex, options = {}) {
             const imageData = processedImages[imageIndex];
-            imageData.currentMethod = method;
-            
-            // Update the displayed image
             const imageSection = imagesGrid.children[imageIndex];
+
+            if (!imageData || !imageSection) {
+                return;
+            }
+
             const croppedImg = imageSection.querySelector('.cropped-image');
             const alignmentControl = document.getElementById(`alignmentControl${imageIndex}`);
             const customAlignmentControl = document.getElementById(`customAlignmentControl${imageIndex}`);
             const cropPreview = document.getElementById(`cropPreview${imageIndex}`);
             const blurControls = document.getElementById(`blurControls${imageIndex}`);
-            
-            if (method === 'blur') {
-                croppedImg.src = imageData.blur;
-                alignmentControl.style.display = 'none'; // Hide alignment options for blur method
-                customAlignmentControl.style.display = 'none'; // Hide custom alignment
-                cropPreview.style.display = 'none'; // Hide crop preview
-                blurControls.style.display = 'block'; // Show blur controls
-            } else {
-                croppedImg.src = imageData.cropped[imageData.currentAlignment];
-                alignmentControl.style.display = 'inline'; // Show alignment options for crop method
-                // Show custom alignment control if custom is selected
-                if (imageData.currentAlignment === 'custom') {
-                    customAlignmentControl.style.display = 'block';
-                    cropPreview.style.display = 'block';
-                    // Initialize preview after a short delay to ensure DOM is ready
-                    setTimeout(() => initializeCropPreview(imageIndex), 100);
-                } else {
-                    customAlignmentControl.style.display = 'none';
-                    cropPreview.style.display = 'none';
-                }
-                blurControls.style.display = 'none'; // Hide blur controls
-            }
-        }
-
-        function updateBlurAlignment(imageIndex, alignment) {
-            const imageData = processedImages[imageIndex];
-            imageData.blurAlignment = alignment;
-            
             const blurCustomControl = document.getElementById(`blurCustomPosition${imageIndex}`);
-            
-            // Show/hide custom slider based on selection
-            if (alignment === 'custom') {
-                blurCustomControl.style.display = 'block';
-            } else {
-                blurCustomControl.style.display = 'none';
-            }
-            
-            // Update the blur image
-            updateBlurImage(imageIndex);
-        }
 
-        function updateBlurCustomPosition(imageIndex, position) {
-            const imageData = processedImages[imageIndex];
-            imageData.blurCustomPosition = parseInt(position);
-            
-            // Update the position display
-            document.getElementById(`blurVerticalValue${imageIndex}`).textContent = position + '%';
-            
-            // Update the blur image if in custom mode
-            if (imageData.blurAlignment === 'custom') {
-                updateBlurImage(imageIndex);
+            croppedImg.src = getCurrentImageOutput(imageData);
+            alignmentControl.style.display = imageData.currentMethod === 'crop' ? 'inline' : 'none';
+            customAlignmentControl.style.display = imageData.currentMethod === 'crop' && imageData.currentAlignment === 'custom' ? 'block' : 'none';
+            cropPreview.style.display = imageData.currentMethod === 'crop' && imageData.currentAlignment === 'custom' ? 'block' : 'none';
+            blurControls.style.display = imageData.currentMethod === 'blur' ? 'block' : 'none';
+            blurCustomControl.style.display = imageData.currentMethod === 'blur' && imageData.blurAlignment === 'custom' ? 'block' : 'none';
+
+            if (imageData.currentMethod === 'crop' && imageData.currentAlignment === 'custom' && options.skipPreview !== true) {
+                requestAnimationFrame(() => initializeCropPreview(imageIndex));
             }
         }
 
-        function updateBlurZoom(imageIndex, zoom) {
+        function updateCropMethod(imageIndex, method) {
             const imageData = processedImages[imageIndex];
-            imageData.blurZoom = parseInt(zoom);
-            
-            // Update the zoom display
-            document.getElementById(`blurZoomValue${imageIndex}`).textContent = zoom + '%';
-            
-            // Update the blur image with new zoom
-            updateBlurImage(imageIndex);
-        }
-
-        function updateBlurImage(imageIndex) {
-            const imageData = processedImages[imageIndex];
-            const alignment = imageData.blurAlignment;
-            const customPosition = imageData.blurCustomPosition;
-            const zoom = imageData.blurZoom;
-            
-            // Generate new blur image with current settings
-            let newBlurImage;
-            if (alignment === 'custom') {
-                newBlurImage = createBlurBackground(
-                    imageData.originalImage,
-                    imageData.backgroundContrast,
-                    imageData.backgroundSaturation,
-                    imageData.backgroundBrightness,
-                    'custom',
-                    customPosition,
-                    zoom
-                );
-            } else {
-                newBlurImage = createBlurBackground(
-                    imageData.originalImage,
-                    imageData.backgroundContrast,
-                    imageData.backgroundSaturation,
-                    imageData.backgroundBrightness,
-                    alignment,
-                    50, // Default position for preset alignments
-                    zoom
-                );
-            }
-            
-            // Update stored blur image
-            imageData.blur = newBlurImage;
-            
-            // Update display if currently showing blur
-            if (imageData.currentMethod === 'blur') {
-                const imageSection = imagesGrid.children[imageIndex];
-                const croppedImg = imageSection.querySelector('.cropped-image');
-                croppedImg.src = newBlurImage;
-            }
-        }
-
-        function updateBackgroundSettings(imageIndex) {
-            const imageData = processedImages[imageIndex];
-            const contrast = parseInt(document.getElementById(`contrastSlider${imageIndex}`).value);
-            const saturation = parseInt(document.getElementById(`saturationSlider${imageIndex}`).value);
-            const brightness = parseInt(document.getElementById(`brightnessSlider${imageIndex}`).value);
-            
-            imageData.backgroundContrast = contrast;
-            imageData.backgroundSaturation = saturation;
-            imageData.backgroundBrightness = brightness;
-            
-            // Update the display values
-            document.getElementById(`contrastValue${imageIndex}`).textContent = contrast + '%';
-            document.getElementById(`saturationValue${imageIndex}`).textContent = saturation + '%';
-            document.getElementById(`brightnessValue${imageIndex}`).textContent = brightness + '%';
-            
-            // Update the blur image with new settings
-            updateBlurImage(imageIndex);
-        }
-
-        function updateBackgroundIntensity(imageIndex, intensity) {
-            const imageData = processedImages[imageIndex];
-            imageData.backgroundIntensity = parseInt(intensity);
-            
-            // Update the intensity display
-            document.getElementById(`intensityValue${imageIndex}`).textContent = intensity + '%';
-            
-            // Regenerate the blur background with new intensity
-            imageData.blur = createBlurBackground(imageData.originalImage, parseInt(intensity));
-            
-            // Update the displayed image if currently showing blur version
-            if (imageData.currentMethod === 'blur') {
-                const imageSection = imagesGrid.children[imageIndex];
-                const croppedImg = imageSection.querySelector('.cropped-image');
-                croppedImg.src = imageData.blur;
-            }
+            imageData.currentMethod = method === 'blur' ? 'blur' : 'crop';
+            refreshOutput(imageIndex);
         }
 
         function updateCropAlignment(imageIndex, alignment) {
             const imageData = processedImages[imageIndex];
-            imageData.currentAlignment = alignment;
-            
-            const customAlignmentControl = document.getElementById(`customAlignmentControl${imageIndex}`);
-            const cropPreview = document.getElementById(`cropPreview${imageIndex}`);
-            
-            // Show/hide custom slider based on selection
-            if (alignment === 'custom') {
-                customAlignmentControl.style.display = 'block';
-                // Show live preview canvas
-                if (imageData.currentMethod === 'crop') {
-                    cropPreview.style.display = 'block';
-                    initializeCropPreview(imageIndex);
-                }
-                // Update the custom crop with current slider value
-                const customPosition = imageData.customVerticalPosition;
-                imageData.cropped.custom = cropTo16x9(imageData.originalImage, 'custom', customPosition);
-            } else {
-                customAlignmentControl.style.display = 'none';
-                cropPreview.style.display = 'none';
+            imageData.currentAlignment = alignment === 'custom' ? 'custom' : ['top', 'middle', 'bottom'].includes(alignment) ? alignment : DEFAULT_ALIGNMENT;
+            refreshOutput(imageIndex);
+        }
+
+        function updateCustomAlignmentPreview(imageIndex, position) {
+            const imageData = processedImages[imageIndex];
+            const safePosition = clampNumber(position, 0, 100, DEFAULT_VERTICAL_POSITION);
+            document.getElementById(`verticalValue${imageIndex}`).textContent = `${safePosition}%`;
+
+            if (imageData.currentMethod !== 'crop' || imageData.currentAlignment !== 'custom') {
+                return;
             }
-            
-            // Only update if we're in crop mode
-            if (imageData.currentMethod === 'crop') {
-                const imageSection = imagesGrid.children[imageIndex];
-                const croppedImg = imageSection.querySelector('.cropped-image');
-                croppedImg.src = imageData.cropped[alignment];
+
+            const canvas = document.getElementById(`previewCanvas${imageIndex}`);
+            if (!canvas) {
+                return;
+            }
+
+            const ctx = canvas.getContext('2d');
+            const img = imageData.originalImage;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const sourceRatio = img.width / img.height;
+
+            if (sourceRatio <= TARGET_RATIO) {
+                const sourceHeight = img.width / TARGET_RATIO;
+                const maxOffset = img.height - sourceHeight;
+                const sourceY = maxOffset * (safePosition / 100);
+                const scale = Math.min(canvas.width / img.width, canvas.height / sourceHeight);
+                const drawWidth = img.width * scale;
+                const drawHeight = sourceHeight * scale;
+                const drawX = (canvas.width - drawWidth) / 2;
+                const drawY = (canvas.height - drawHeight) / 2;
+
+                ctx.drawImage(
+                    img,
+                    0,
+                    sourceY,
+                    img.width,
+                    sourceHeight,
+                    drawX,
+                    drawY,
+                    drawWidth,
+                    drawHeight
+                );
+            } else {
+                const sourceWidth = img.height * TARGET_RATIO;
+                const sourceX = (img.width - sourceWidth) / 2;
+                const scale = Math.min(canvas.width / sourceWidth, canvas.height / img.height);
+                const drawWidth = sourceWidth * scale;
+                const drawHeight = img.height * scale;
+                const drawX = (canvas.width - drawWidth) / 2;
+                const drawY = (canvas.height - drawHeight) / 2;
+
+                ctx.drawImage(
+                    img,
+                    sourceX,
+                    0,
+                    sourceWidth,
+                    img.height,
+                    drawX,
+                    drawY,
+                    drawWidth,
+                    drawHeight
+                );
             }
         }
 
         function initializeCropPreview(imageIndex) {
             const imageData = processedImages[imageIndex];
             const canvas = document.getElementById(`previewCanvas${imageIndex}`);
-            const ctx = canvas.getContext('2d');
-            
-            // Set canvas size to match the display size of the cropped image
-            const croppedImg = document.querySelector(`#imagesGrid .image-section:nth-child(${imageIndex + 1}) .cropped-image`);
-            canvas.width = croppedImg.offsetWidth || 400;
-            canvas.height = croppedImg.offsetHeight || 225;
-            
-            // Draw the initial preview
-            updateCustomAlignmentPreview(imageIndex, imageData.customVerticalPosition);
-        }
 
-        function updateCustomAlignmentPreview(imageIndex, position) {
-            const imageData = processedImages[imageIndex];
-            
-            // Update the position display
-            document.getElementById(`verticalValue${imageIndex}`).textContent = position + '%';
-            
-            // Only show preview if in custom crop mode
-            if (imageData.currentMethod !== 'crop' || imageData.currentAlignment !== 'custom') {
+            if (!canvas || !imageData) {
                 return;
             }
-            
-            const canvas = document.getElementById(`previewCanvas${imageIndex}`);
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            const img = imageData.originalImage;
-            
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Calculate crop area (same logic as cropTo16x9 function)
-            const targetRatio = 16 / 9;
-            const sourceRatio = img.width / img.height;
-            
-            if (sourceRatio <= targetRatio) {
-                // Image is taller than 16:9, so we'll be cropping vertically
-                const sourceHeight = img.width / targetRatio;
-                const maxOffset = img.height - sourceHeight;
-                const sourceY = maxOffset * (position / 100);
-                
-                // Draw the preview with the calculated crop area
-                const scale = Math.min(canvas.width / img.width, canvas.height / sourceHeight);
-                const drawWidth = img.width * scale;
-                const drawHeight = sourceHeight * scale;
-                const drawX = (canvas.width - drawWidth) / 2;
-                const drawY = (canvas.height - drawHeight) / 2;
-                
-                ctx.drawImage(
-                    img,
-                    0, sourceY, img.width, sourceHeight,
-                    drawX, drawY, drawWidth, drawHeight
-                );
-            } else {
-                // Image is wider than 16:9, vertical position doesn't matter
-                // Just draw the normal crop
-                const sourceWidth = img.height * targetRatio;
-                const sourceX = (img.width - sourceWidth) / 2;
-                
-                const scale = Math.min(canvas.width / sourceWidth, canvas.height / img.height);
-                const drawWidth = sourceWidth * scale;
-                const drawHeight = img.height * scale;
-                const drawX = (canvas.width - drawWidth) / 2;
-                const drawY = (canvas.height - drawHeight) / 2;
-                
-                ctx.drawImage(
-                    img,
-                    sourceX, 0, sourceWidth, img.height,
-                    drawX, drawY, drawWidth, drawHeight
-                );
-            }
+
+            const croppedImg = imagesGrid.children[imageIndex]?.querySelector('.cropped-image');
+            canvas.width = croppedImg?.offsetWidth || 400;
+            canvas.height = croppedImg?.offsetHeight || 225;
+            updateCustomAlignmentPreview(imageIndex, imageData.customVerticalPosition);
         }
 
         function updateCustomAlignment(imageIndex, position) {
             const imageData = processedImages[imageIndex];
-            imageData.customVerticalPosition = parseInt(position);
-            
-            // Regenerate the actual crop image for download - FORCE UPDATE
-            const newCustomCrop = cropTo16x9(imageData.originalImage, 'custom', parseInt(position));
-            imageData.cropped.custom = newCustomCrop;
-            
-            // Update the main displayed image immediately
-            if (imageData.currentMethod === 'crop' && imageData.currentAlignment === 'custom') {
-                const imageSection = imagesGrid.children[imageIndex];
-                const croppedImg = imageSection.querySelector('.cropped-image');
-                croppedImg.src = newCustomCrop; // Use the newly generated crop directly
+            imageData.customVerticalPosition = clampNumber(position, 0, 100, DEFAULT_VERTICAL_POSITION);
+            document.getElementById(`verticalSlider${imageIndex}`).value = imageData.customVerticalPosition;
+            document.getElementById(`verticalValue${imageIndex}`).textContent = `${imageData.customVerticalPosition}%`;
+            refreshOutput(imageIndex, { skipPreview: true });
+            updateCustomAlignmentPreview(imageIndex, imageData.customVerticalPosition);
+        }
+
+        function updateBlurAlignment(imageIndex, alignment) {
+            const imageData = processedImages[imageIndex];
+            imageData.blurAlignment = alignment === 'custom' ? 'custom' : ['top', 'middle', 'bottom'].includes(alignment) ? alignment : DEFAULT_ALIGNMENT;
+            refreshOutput(imageIndex, { skipPreview: true });
+        }
+
+        function updateBlurCustomPosition(imageIndex, position) {
+            const imageData = processedImages[imageIndex];
+            imageData.blurCustomPosition = clampNumber(position, 0, 100, DEFAULT_VERTICAL_POSITION);
+            document.getElementById(`blurVerticalSlider${imageIndex}`).value = imageData.blurCustomPosition;
+            document.getElementById(`blurVerticalValue${imageIndex}`).textContent = `${imageData.blurCustomPosition}%`;
+
+            if (imageData.blurAlignment === 'custom') {
+                refreshOutput(imageIndex, { skipPreview: true });
             }
         }
 
-        function downloadSingle(index) {
-            const imageData = processedImages[index];
-            let imageToDownload, filename;
-            
-            console.log('downloadSingle called with:', { 
-                index, 
-                currentMethod: imageData.currentMethod, 
-                currentAlignment: imageData.currentAlignment,
-                customVerticalPosition: imageData.customVerticalPosition 
-            });
-            
+        function updateBlurZoom(imageIndex, zoom) {
+            const imageData = processedImages[imageIndex];
+            imageData.blurZoom = clampNumber(zoom, 25, 150, DEFAULT_BLUR_ZOOM);
+            document.getElementById(`blurZoomSlider${imageIndex}`).value = imageData.blurZoom;
+            document.getElementById(`blurZoomValue${imageIndex}`).textContent = `${imageData.blurZoom}%`;
+            refreshOutput(imageIndex, { skipPreview: true });
+        }
+
+        function updateBackgroundSettings(imageIndex) {
+            const imageData = processedImages[imageIndex];
+            imageData.backgroundContrast = clampNumber(document.getElementById(`contrastSlider${imageIndex}`).value, 0, 100, DEFAULT_BACKGROUND_VALUE);
+            imageData.backgroundSaturation = clampNumber(document.getElementById(`saturationSlider${imageIndex}`).value, 0, 100, DEFAULT_BACKGROUND_VALUE);
+            imageData.backgroundBrightness = clampNumber(document.getElementById(`brightnessSlider${imageIndex}`).value, 0, 100, DEFAULT_BACKGROUND_VALUE);
+
+            document.getElementById(`contrastValue${imageIndex}`).textContent = `${imageData.backgroundContrast}%`;
+            document.getElementById(`saturationValue${imageIndex}`).textContent = `${imageData.backgroundSaturation}%`;
+            document.getElementById(`brightnessValue${imageIndex}`).textContent = `${imageData.backgroundBrightness}%`;
+            refreshOutput(imageIndex, { skipPreview: true });
+        }
+
+        async function downloadDataUrl(dataUrl, filename) {
+            const response = await fetch(dataUrl);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.style.display = 'none';
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function buildDownloadFilename(imageData) {
+            const baseName = sanitizeDownloadName(getFileNameWithoutExtension(imageData.filename));
+
             if (imageData.currentMethod === 'blur') {
-                console.log('Using blur method');
-                imageToDownload = imageData.blur;
-                filename = `16x9_blur_${getFileNameWithoutExtension(imageData.filename)}.png`;
-            } else if (imageData.currentAlignment === 'custom') {
-                console.log('Using custom alignment - about to call cropTo16x9');
-                console.log('Image data:', { 
-                    hasOriginalImage: !!imageData.originalImage,
-                    customPosition: imageData.customVerticalPosition 
-                });
-                
-                try {
-                    // Let's inline the crop logic to debug this
-                    const img = imageData.originalImage;
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    const targetRatio = 16 / 9;
-                    const sourceRatio = img.width / img.height;
-                    
-                    console.log('Manual crop - ratios:', { targetRatio, sourceRatio });
-                    
-                    let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
-                    
-                    if (sourceRatio > targetRatio) {
-                        // Wide image - crop horizontally
-                        sourceWidth = img.height * targetRatio;
-                        sourceX = (img.width - sourceWidth) / 2;
-                        console.log('Wide image detected - no custom positioning applies');
-                    } else {
-                        // Tall image - crop vertically with custom position
-                        sourceHeight = img.width / targetRatio;
-                        const maxOffset = img.height - sourceHeight;
-                        sourceY = maxOffset * (imageData.customVerticalPosition / 100);
-                        console.log('Tall image - custom crop:', { 
-                            sourceHeight, 
-                            maxOffset, 
-                            customPosition: imageData.customVerticalPosition,
-                            calculatedY: sourceY 
-                        });
-                    }
-                    
-                    // Set canvas size
-                    const maxWidth = 1920;
-                    if (sourceWidth > maxWidth) {
-                        canvas.width = maxWidth;
-                        canvas.height = maxWidth / targetRatio;
-                    } else {
-                        canvas.width = sourceWidth;
-                        canvas.height = sourceHeight;
-                    }
-                    
-                    console.log('Drawing with:', { sourceX, sourceY, sourceWidth, sourceHeight });
-                    
-                    ctx.drawImage(
-                        img,
-                        sourceX, sourceY, sourceWidth, sourceHeight,
-                        0, 0, canvas.width, canvas.height
-                    );
-                    
-                    const freshCustomCrop = canvas.toDataURL('image/png', 0.9);
-                    console.log('Manual crop completed');
-                    console.log('Generated image data URL length:', freshCustomCrop.length);
-                    console.log('Generated image data URL starts with:', freshCustomCrop.substring(0, 50));
-                    
-                    imageToDownload = freshCustomCrop;
-                    filename = `16x9_custom_${imageData.customVerticalPosition}%_${getFileNameWithoutExtension(imageData.filename)}.png`;
-                    
-                    console.log('Downloading custom crop with position:', imageData.customVerticalPosition);
-                } catch (error) {
-                    console.error('Error generating custom crop:', error);
-                    // Fallback to middle crop
-                    imageToDownload = imageData.cropped.middle;
-                    filename = `16x9_fallback_middle_${getFileNameWithoutExtension(imageData.filename)}.png`;
-                }
-            } else {
-                console.log('Using standard alignment:', imageData.currentAlignment);
-                imageToDownload = imageData.cropped[imageData.currentAlignment];
-                filename = `16x9_${imageData.currentAlignment}_${getFileNameWithoutExtension(imageData.filename)}.png`;
+                return `16x9_blur_${baseName}.png`;
             }
-            
-            console.log('About to download:', { filename, imageToDownload: imageToDownload ? 'exists' : 'null' });
-            
-            // Convert data URL to blob for better download compatibility
-            fetch(imageToDownload)
-                .then(res => res.blob())
-                .then(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.style.display = 'none';
-                    link.href = url;
-                    link.download = filename;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(url);
-                });
+
+            if (imageData.currentAlignment === 'custom') {
+                return `16x9_custom_${imageData.customVerticalPosition}%_${baseName}.png`;
+            }
+
+            return `16x9_${imageData.currentAlignment}_${baseName}.png`;
+        }
+
+        async function downloadSingle(index) {
+            const imageData = processedImages[index];
+
+            if (!imageData) {
+                return;
+            }
+
+            try {
+                await downloadDataUrl(getCurrentImageOutput(imageData), buildDownloadFilename(imageData));
+            } catch (error) {
+                showStatus(`Download failed for ${imageData.filename}. Please try again.`, 'error');
+            }
         }
 
         function downloadAll() {
             processedImages.forEach((imageData, index) => {
                 setTimeout(() => {
-                    let imageToDownload, filename;
-                    
-                    if (imageData.currentMethod === 'blur') {
-                        imageToDownload = imageData.blur;
-                        filename = `16x9_blur_${getFileNameWithoutExtension(imageData.filename)}.png`;
-                    } else if (imageData.currentAlignment === 'custom') {
-                        // ALWAYS regenerate custom crop at download time
-                        const freshCustomCrop = cropTo16x9(imageData.originalImage, 'custom', imageData.customVerticalPosition);
-                        imageToDownload = freshCustomCrop;
-                        filename = `16x9_custom_${imageData.customVerticalPosition}%_${getFileNameWithoutExtension(imageData.filename)}.png`;
-                    } else {
-                        imageToDownload = imageData.cropped[imageData.currentAlignment];
-                        filename = `16x9_${imageData.currentAlignment}_${getFileNameWithoutExtension(imageData.filename)}.png`;
-                    }
-                    
-                    fetch(imageToDownload)
-                        .then(res => res.blob())
-                        .then(blob => {
-                            const url = window.URL.createObjectURL(blob);
-                            const link = document.createElement('a');
-                            link.style.display = 'none';
-                            link.href = url;
-                            link.download = filename;
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            window.URL.revokeObjectURL(url);
+                    downloadDataUrl(getCurrentImageOutput(imageData), buildDownloadFilename(imageData))
+                        .catch(() => {
+                            showStatus(`At least one download failed. Please retry the affected image.`, 'error');
                         });
                 }, index * 200);
             });
@@ -1049,11 +1104,36 @@
             return filename.substring(0, filename.lastIndexOf('.')) || filename;
         }
 
+        function sanitizeDownloadName(filename) {
+            return filename
+                .replace(/[\\/:*?"<>|]+/g, '_')
+                .replace(/\s+/g, '_')
+                .replace(/_+/g, '_')
+                .replace(/^_+|_+$/g, '');
+        }
+
         function clearImages() {
+            processedImages.forEach(imageData => {
+                if (imageData.original) {
+                    URL.revokeObjectURL(imageData.original);
+                }
+            });
+
             processedImages = [];
+            imagesGrid.innerHTML = '';
             imageContainer.style.display = 'none';
             fileInput.value = '';
+            hideStatus();
         }
+
+        window.imageCropperDebug = {
+            cropTo16x9,
+            createBlurBackground,
+            buildDownloadFilename,
+            getCropImage,
+            getBlurImage,
+            extractSupportedFilesFromZip
+        };
     </script>
 </body>
 </html>
