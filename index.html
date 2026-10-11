@@ -109,6 +109,101 @@
             opacity: 0.9;
         }
 
+        .header {
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 12px 16px;
+        }
+
+        .header-link {
+            font-family: var(--font-display);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px 10px 12px;
+            border-radius: 14px;
+            border: none;
+            background: white;
+            color: #4a3fc9;
+            text-decoration: none;
+            white-space: nowrap;
+            box-shadow: 0 8px 22px rgba(30, 20, 90, 0.35), 0 0 0 4px rgba(255, 255, 255, 0.22);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .header-link-icon {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #5468ff, #7655df);
+            color: white;
+            font-size: 1.25rem;
+            flex: none;
+        }
+
+        .header-link-text {
+            display: grid;
+            gap: 1px;
+            text-align: left;
+        }
+
+        .header-link-text strong {
+            font-size: 1rem;
+            font-weight: 750;
+            letter-spacing: -0.01em;
+        }
+
+        .header-link-text small {
+            font-size: 0.74rem;
+            font-weight: 550;
+            color: #6b6890;
+        }
+
+        .header-link-arrow {
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: transform 0.15s;
+        }
+
+        .header-link:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(30, 20, 90, 0.42), 0 0 0 5px rgba(255, 255, 255, 0.32);
+        }
+
+        .header-link:hover .header-link-arrow {
+            transform: translateX(3px);
+        }
+
+        .header-link:focus-visible {
+            outline: 3px solid white;
+            outline-offset: 3px;
+        }
+
+        /* Only offer the split builder on the start screen, not while cropping */
+        body:not(.empty-state) .header-link {
+            display: none;
+        }
+
+        body:not(.empty-state) .header {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .header-link {
+                justify-self: stretch;
+            }
+
+            .header-link-arrow {
+                margin-left: auto;
+            }
+        }
+
         .content {
             padding: 12px;
             display: grid;
@@ -1050,6 +1145,11 @@
                 <h1><span class="header-icon">📐</span>16:9 Image Cropper</h1>
                 <p>Upload images or a ZIP, drag each one into place, and export 1920×1080 versions. Everything stays in your browser.</p>
             </div>
+            <a class="header-link" href="index2.html">
+                <span class="header-link-icon" aria-hidden="true">◧</span>
+                <span class="header-link-text"><strong>Split Image Builder</strong><small>Combine two images in one frame</small></span>
+                <span class="header-link-arrow" aria-hidden="true">→</span>
+            </a>
         </div>
         
         <div class="content">
