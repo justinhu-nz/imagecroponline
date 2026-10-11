@@ -775,6 +775,271 @@
                 width: 100%;
             }
         }
+
+        /* ---- Framing + background editor ---- */
+        .image-grid {
+            grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+            align-items: start;
+        }
+
+        .preview-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .preview-label-note {
+            font-size: 0.7rem;
+            font-weight: 550;
+            letter-spacing: 0.02em;
+            text-transform: none;
+            color: var(--muted-soft);
+        }
+
+        .stage-169 {
+            aspect-ratio: 16 / 9;
+            min-height: 0;
+            padding: 0;
+            background:
+                repeating-conic-gradient(rgba(31, 40, 83, 0.05) 0% 25%, transparent 0% 50%) 50% / 16px 16px,
+                #f3f5fa;
+        }
+
+        .orig-canvas,
+        .out-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .orig-canvas.can-drag,
+        .out-canvas.can-drag {
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .orig-canvas.dragging,
+        .out-canvas.dragging {
+            cursor: grabbing;
+        }
+
+        .out-canvas:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: -2px;
+        }
+
+        .stage-output {
+            box-shadow: 0 0 0 1px rgba(84, 104, 255, 0.18);
+        }
+
+        .control-row {
+            display: grid;
+            grid-template-columns: auto minmax(220px, 1fr) auto;
+            gap: 10px 18px;
+            align-items: end;
+        }
+
+        .position-groups {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .toggle-button:disabled {
+            opacity: 0.32;
+            cursor: not-allowed;
+            background: transparent;
+            color: var(--muted);
+        }
+
+        .lock-toggle {
+            font-family: var(--font-display);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 38px;
+            padding: 0 13px 0 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 650;
+            cursor: pointer;
+        }
+
+        .lock-toggle:hover {
+            color: var(--text);
+            border-color: var(--border-strong);
+        }
+
+        .lock-toggle.active {
+            background: var(--accent-soft);
+            border-color: var(--border-strong);
+            color: var(--accent);
+        }
+
+        .lock-toggle[hidden] {
+            display: none;
+        }
+
+        .zoom-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            gap: 8px;
+            align-items: center;
+            min-height: 38px;
+        }
+
+        .mini-btn {
+            font-family: var(--font-display);
+            font-size: 0.74rem;
+            font-weight: 650;
+            color: var(--accent);
+            background: var(--accent-soft);
+            border: 0;
+            border-radius: 999px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .mini-btn:hover {
+            background: rgba(84, 104, 255, 0.18);
+        }
+
+        .framing-hint {
+            font-size: 0.8rem;
+            line-height: 1.4;
+            color: var(--muted);
+        }
+
+        .framing-hint strong {
+            color: var(--text);
+            font-weight: 650;
+        }
+
+        .framing-hint kbd {
+            font: 600 0.7rem var(--font-body);
+            border: 1px solid var(--border);
+            border-bottom-width: 2px;
+            border-radius: 4px;
+            padding: 0 4px;
+            background: white;
+        }
+
+        .bg-panel {
+            display: grid;
+            gap: 10px;
+            padding: 12px;
+            border-radius: var(--radius-lg);
+            background: var(--surface-soft);
+            border: 1px solid var(--border);
+        }
+
+        .bg-panel[hidden] {
+            display: none;
+        }
+
+        .bg-panel-head {
+            display: flex;
+            align-items: center;
+            gap: 8px 12px;
+            flex-wrap: wrap;
+        }
+
+        .section-label {
+            color: var(--muted-soft);
+            font-size: 0.72rem;
+            font-weight: 650;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .preset-row {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .preset-chip {
+            font-family: var(--font-display);
+            font-size: 0.76rem;
+            font-weight: 650;
+            padding: 5px 11px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--muted);
+            cursor: pointer;
+        }
+
+        .preset-chip:hover {
+            color: var(--text);
+            border-color: var(--border-strong);
+        }
+
+        .preset-chip.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .bg-sliders {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 6px 22px;
+        }
+
+        .bg-slider {
+            display: grid;
+            grid-template-columns: 78px minmax(0, 1fr) 40px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bg-slider label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .bg-slider output {
+            font-family: var(--font-display);
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .bg-slider output.changed {
+            color: var(--accent);
+        }
+
+        .card-footer {
+            gap: 8px;
+            align-items: center;
+        }
+
+        .card-footer .btn {
+            border-radius: var(--radius-md);
+            border-top-width: 1px;
+            border-top-style: solid;
+            min-height: 34px;
+            padding: 0 14px;
+            font-size: 0.8rem;
+        }
+
+        .card-footer .btn-secondary {
+            border-top-color: rgba(205, 212, 232, 1);
+        }
+
+        @media (max-width: 900px) {
+            .control-row {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -783,7 +1048,7 @@
             <div class="header-copy">
                 <div class="eyebrow">Local 16:9 Formatter</div>
                 <h1><span class="header-icon">📐</span>16:9 Image Cropper</h1>
-                <p>Upload images or a ZIP, adjust the framing, and export 16:9 versions locally in the browser.</p>
+                <p>Upload images or a ZIP, drag each one into place, and export 1920×1080 versions. Everything stays in your browser.</p>
             </div>
         </div>
         
@@ -808,7 +1073,7 @@
                 <div class="batch-toolbar">
                     <div class="controls floating-tab-bar">
                         <button class="btn btn-secondary" onclick="clearImages()">Clear All</button>
-                        <button class="btn btn-danger" onclick="downloadAll()">Download All</button>
+                        <button class="btn btn-danger" onclick="downloadAll()">Download All (.zip)</button>
                     </div>
                 </div>
                 <div class="batch-summary">
@@ -819,15 +1084,13 @@
         </div>
     </div>
 
+    <datalist id="bgZeroTick"><option value="0"></option></datalist>
+
     <script src="fflate.min.js"></script>
     <script>
         const TARGET_WIDTH = 1920;
         const TARGET_HEIGHT = 1080;
         const TARGET_RATIO = TARGET_WIDTH / TARGET_HEIGHT;
-        const DEFAULT_ALIGNMENT = 'middle';
-        const DEFAULT_VERTICAL_POSITION = 50;
-        const DEFAULT_BLUR_ZOOM = 100;
-        const DEFAULT_BACKGROUND_VALUE = 50;
         const DOWNLOAD_ALL_DELAY_MS = 120;
 
         let processedImages = [];
@@ -1140,6 +1403,58 @@
             };
         }
 
+        // ---------------------------------------------------------------
+        // Framing model
+        //
+        // Every image is a single layer placed on a 1920x1080 frame.
+        //   crop mode: the layer starts at "fill" (covers the frame) and can zoom in.
+        //   blur mode: the layer starts at "fit" (fully visible) on a blurred copy of itself.
+        // Position is stored per axis as 0..1 of the available slack (0 = left/top edge,
+        // 0.5 = centred, 1 = right/bottom edge), so it means the same thing whether the
+        // layer is smaller or larger than the frame.
+        // ---------------------------------------------------------------
+        const ZOOM_LIMITS = {
+            crop: { min: 100, max: 300 },
+            blur: { min: 40, max: 200 }
+        };
+        const DEFAULT_BG = { blur: 60, brightness: -15, saturation: 15, contrast: 0 };
+        const BG_PRESETS = [
+            { id: 'balanced', label: 'Balanced', values: { ...DEFAULT_BG } },
+            { id: 'natural', label: 'Natural', values: { blur: 50, brightness: 0, saturation: 0, contrast: 0 } },
+            { id: 'dim', label: 'Dim', values: { blur: 60, brightness: -40, saturation: -10, contrast: -10 } },
+            { id: 'dark', label: 'Dark', values: { blur: 70, brightness: -65, saturation: -20, contrast: 0 } },
+            { id: 'vivid', label: 'Vivid', values: { blur: 55, brightness: 0, saturation: 55, contrast: 12 } },
+            { id: 'mono', label: 'Mono', values: { blur: 60, brightness: -10, saturation: -100, contrast: 5 } }
+        ];
+        const BG_SLIDERS = [
+            { key: 'blur', label: 'Blur', min: 0, max: 100, signed: false },
+            { key: 'brightness', label: 'Brightness', min: -100, max: 100, signed: true },
+            { key: 'saturation', label: 'Saturation', min: -100, max: 100, signed: true },
+            { key: 'contrast', label: 'Contrast', min: -100, max: 100, signed: true }
+        ];
+        const BG_SMALL_WIDTH = 192;
+        const BG_SMALL_HEIGHT = 108;
+        const POSITION_SNAPS = { start: 0, center: 0.5, end: 1 };
+
+        let nextImageId = 1;
+        const cardRefs = new Map();
+
+        function createImageState(img, objectUrl, displayName) {
+            return {
+                id: nextImageId++,
+                original: objectUrl,
+                originalImage: img,
+                filename: displayName,
+                mode: 'crop',
+                frames: {
+                    crop: { zoom: 100, x: 0.5, y: 0.5 },
+                    blur: { zoom: 100, x: 0.5, y: 0.5, locked: true }
+                },
+                bg: { ...DEFAULT_BG },
+                bgCache: null
+            };
+        }
+
         function processImage(file, displayName = file.name) {
             return new Promise((resolve, reject) => {
                 const objectUrl = URL.createObjectURL(file);
@@ -1147,23 +1462,7 @@
                 img.decoding = 'async';
 
                 img.onload = function() {
-                    resolve({
-                        original: objectUrl,
-                        originalImage: img,
-                        filename: displayName,
-                        currentAlignment: DEFAULT_ALIGNMENT,
-                        customVerticalPosition: DEFAULT_VERTICAL_POSITION,
-                        currentMethod: 'crop',
-                        blurAlignment: DEFAULT_ALIGNMENT,
-                        blurCustomPosition: DEFAULT_VERTICAL_POSITION,
-                        blurZoom: DEFAULT_BLUR_ZOOM,
-                        backgroundContrast: DEFAULT_BACKGROUND_VALUE,
-                        backgroundSaturation: DEFAULT_BACKGROUND_VALUE,
-                        backgroundBrightness: DEFAULT_BACKGROUND_VALUE,
-                        cropCache: {},
-                        blurCacheKey: '',
-                        blur: null
-                    });
+                    resolve(createImageState(img, objectUrl, displayName));
                 };
 
                 img.onerror = function() {
@@ -1207,613 +1506,755 @@
             return Math.min(max, Math.max(min, numericValue));
         }
 
-        function getCropImage(imageData, alignment = imageData.currentAlignment, customPosition = imageData.customVerticalPosition) {
-            const normalizedAlignment = alignment === 'custom' ? 'custom' : ['top', 'middle', 'bottom'].includes(alignment) ? alignment : DEFAULT_ALIGNMENT;
-            const safeCustomPosition = clampNumber(customPosition, 0, 100, DEFAULT_VERTICAL_POSITION);
-            const cacheKey = normalizedAlignment === 'custom' ? `custom:${safeCustomPosition}` : normalizedAlignment;
-
-            if (!imageData.cropCache[cacheKey]) {
-                imageData.cropCache[cacheKey] = cropTo16x9(imageData.originalImage, normalizedAlignment, safeCustomPosition);
-            }
-
-            return imageData.cropCache[cacheKey];
+        function imageSize(img) {
+            return {
+                width: img.naturalWidth || img.width,
+                height: img.naturalHeight || img.height
+            };
         }
 
-        function getBlurImage(imageData) {
-            const alignment = imageData.blurAlignment === 'custom' ? 'custom' : ['top', 'middle', 'bottom'].includes(imageData.blurAlignment) ? imageData.blurAlignment : DEFAULT_ALIGNMENT;
-            const customPosition = clampNumber(imageData.blurCustomPosition, 0, 100, DEFAULT_VERTICAL_POSITION);
-            const zoom = clampNumber(imageData.blurZoom, 25, 150, DEFAULT_BLUR_ZOOM);
-            const contrast = clampNumber(imageData.backgroundContrast, 0, 100, DEFAULT_BACKGROUND_VALUE);
-            const saturation = clampNumber(imageData.backgroundSaturation, 0, 100, DEFAULT_BACKGROUND_VALUE);
-            const brightness = clampNumber(imageData.backgroundBrightness, 0, 100, DEFAULT_BACKGROUND_VALUE);
-            const cacheKey = [alignment, customPosition, zoom, contrast, saturation, brightness].join(':');
-
-            if (imageData.blurCacheKey !== cacheKey) {
-                imageData.blur = createBlurBackground(
-                    imageData.originalImage,
-                    contrast,
-                    saturation,
-                    brightness,
-                    alignment,
-                    customPosition,
-                    zoom
-                );
-                imageData.blurCacheKey = cacheKey;
-            }
-
-            return imageData.blur;
+        function currentFrame(imageData) {
+            return imageData.frames[imageData.mode];
         }
 
-        function getCurrentImageOutput(imageData) {
-            if (imageData.currentMethod === 'blur') {
-                return getBlurImage(imageData);
-            }
+        // Geometry in 1920x1080 output units.
+        function getLayout(imageData, mode = imageData.mode) {
+            const { width: iw, height: ih } = imageSize(imageData.originalImage);
+            const frame = imageData.frames[mode];
+            const base = mode === 'crop'
+                ? Math.max(TARGET_WIDTH / iw, TARGET_HEIGHT / ih)
+                : Math.min(TARGET_WIDTH / iw, TARGET_HEIGHT / ih);
+            const scale = base * frame.zoom / 100;
+            const width = iw * scale;
+            const height = ih * scale;
+            const slackX = TARGET_WIDTH - width;
+            const slackY = TARGET_HEIGHT - height;
 
-            return getCropImage(imageData, imageData.currentAlignment, imageData.customVerticalPosition);
+            return {
+                iw,
+                ih,
+                scale,
+                width,
+                height,
+                slackX,
+                slackY,
+                x: slackX * frame.x,
+                y: slackY * frame.y,
+                movableX: Math.abs(slackX) > 2,
+                movableY: Math.abs(slackY) > 2
+            };
         }
 
-        function getPositionToggleIcon(position) {
-            switch (position) {
-                case 'top':
-                    return `
-                        <svg class="toggle-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                            <rect class="toggle-icon-frame" x="2" y="2" width="12" height="12" rx="2.35"></rect>
-                            <rect class="toggle-icon-bar" x="4" y="3.8" width="8" height="2.2" rx="1.1"></rect>
-                        </svg>
-                    `.trim();
-                case 'bottom':
-                    return `
-                        <svg class="toggle-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                            <rect class="toggle-icon-frame" x="2" y="2" width="12" height="12" rx="2.35"></rect>
-                            <rect class="toggle-icon-bar" x="4" y="10" width="8" height="2.2" rx="1.1"></rect>
-                        </svg>
-                    `.trim();
-                case 'custom':
-                    return `
-                        <svg class="toggle-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                            <rect class="toggle-icon-frame" x="2" y="2" width="12" height="12" rx="2.35"></rect>
-                            <line class="toggle-icon-guide" x1="8" y1="4" x2="8" y2="12"></line>
-                            <circle class="toggle-icon-bar" cx="8" cy="8" r="1.9"></circle>
-                        </svg>
-                    `.trim();
-                case 'middle':
-                default:
-                    return `
-                        <svg class="toggle-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                            <rect class="toggle-icon-frame" x="2" y="2" width="12" height="12" rx="2.35"></rect>
-                            <rect class="toggle-icon-bar" x="4" y="6.9" width="8" height="2.2" rx="1.1"></rect>
-                        </svg>
-                    `.trim();
+        // Move the layer by a delta in output pixels (positive = right/down).
+        function nudgeLayer(imageData, deltaX, deltaY) {
+            const layout = getLayout(imageData);
+            const frame = currentFrame(imageData);
+
+            if (frame.locked) {
+                return;
+            }
+
+            if (layout.movableX && deltaX) {
+                frame.x = clampNumber(frame.x + deltaX / layout.slackX, 0, 1, 0.5);
+            }
+
+            if (layout.movableY && deltaY) {
+                frame.y = clampNumber(frame.y + deltaY / layout.slackY, 0, 1, 0.5);
             }
         }
 
-        function createBlurBackground(img, contrast = DEFAULT_BACKGROUND_VALUE, saturation = DEFAULT_BACKGROUND_VALUE, brightness = DEFAULT_BACKGROUND_VALUE, alignment = DEFAULT_ALIGNMENT, customPosition = DEFAULT_VERTICAL_POSITION, zoom = DEFAULT_BLUR_ZOOM) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-
-            canvas.width = TARGET_WIDTH;
-            canvas.height = TARGET_HEIGHT;
-
-            const blurPadding = 160;
-            const imageRatio = img.width / img.height;
-            let bgWidth;
-            let bgHeight;
-            let bgX;
-            let bgY;
-
-            if (imageRatio > TARGET_RATIO) {
-                bgHeight = canvas.height + (blurPadding * 2);
-                bgWidth = bgHeight * imageRatio;
-                bgX = (canvas.width - bgWidth) / 2;
-                bgY = -blurPadding;
-            } else {
-                bgWidth = canvas.width + (blurPadding * 2);
-                bgHeight = bgWidth / imageRatio;
-                bgX = -blurPadding;
-                bgY = (canvas.height - bgHeight) / 2;
-            }
-
-            const contrastValue = 50 + (contrast * 0.5);
-            const saturationValue = saturation;
-            const brightnessValue = 50 + (brightness * 0.5);
-
-            ctx.filter = `blur(80px) contrast(${contrastValue}%) saturate(${saturationValue}%) brightness(${brightnessValue}%)`;
-            ctx.drawImage(img, bgX, bgY, bgWidth, bgHeight);
-            ctx.filter = 'none';
-
-            let baseOverlayWidth;
-            let baseOverlayHeight;
-
-            if (imageRatio > TARGET_RATIO) {
-                baseOverlayWidth = canvas.width;
-                baseOverlayHeight = canvas.width / imageRatio;
-            } else {
-                baseOverlayHeight = canvas.height;
-                baseOverlayWidth = canvas.height * imageRatio;
-            }
-
-            const zoomFactor = clampNumber(zoom, 25, 150, DEFAULT_BLUR_ZOOM) / 100;
-            const overlayWidth = baseOverlayWidth * zoomFactor;
-            const overlayHeight = baseOverlayHeight * zoomFactor;
-            const overlayX = (canvas.width - overlayWidth) / 2;
-            const maxYOffset = canvas.height - overlayHeight;
-            const safeAlignment = alignment === 'custom' ? 'custom' : ['top', 'middle', 'bottom'].includes(alignment) ? alignment : DEFAULT_ALIGNMENT;
-            let overlayY;
-
-            switch (safeAlignment) {
-                case 'top':
-                    overlayY = 0;
-                    break;
-                case 'bottom':
-                    overlayY = maxYOffset;
-                    break;
-                case 'custom':
-                    overlayY = maxYOffset * (clampNumber(customPosition, 0, 100, DEFAULT_VERTICAL_POSITION) / 100);
-                    break;
-                case 'middle':
-                default:
-                    overlayY = maxYOffset / 2;
-                    break;
-            }
-
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
-            ctx.shadowBlur = 40;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 8;
-            ctx.drawImage(img, overlayX, overlayY, overlayWidth, overlayHeight);
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
-
-            return canvas.toDataURL('image/png', 0.9);
+        function isLocked(imageData) {
+            return Boolean(currentFrame(imageData).locked);
         }
 
-        function cropTo16x9(img, alignment = DEFAULT_ALIGNMENT, customPosition = DEFAULT_VERTICAL_POSITION) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+        function setLocked(imageData, locked) {
+            const frame = currentFrame(imageData);
+            frame.locked = locked;
 
-            const sourceRatio = img.width / img.height;
-            let sourceX = 0;
-            let sourceY = 0;
-            let sourceWidth = img.width;
-            let sourceHeight = img.height;
+            if (locked) {
+                frame.x = 0.5;
+                frame.y = 0.5;
+            }
+        }
 
-            if (sourceRatio > TARGET_RATIO) {
-                sourceWidth = img.height * TARGET_RATIO;
-                sourceX = (img.width - sourceWidth) / 2;
-            } else {
-                sourceHeight = img.width / TARGET_RATIO;
-                const maxOffset = img.height - sourceHeight;
+        function setZoom(imageData, zoom) {
+            const limits = ZOOM_LIMITS[imageData.mode];
+            currentFrame(imageData).zoom = Math.round(clampNumber(zoom, limits.min, limits.max, 100));
+        }
 
-                switch (alignment) {
-                    case 'top':
-                        sourceY = 0;
-                        break;
-                    case 'bottom':
-                        sourceY = maxOffset;
-                        break;
-                    case 'custom':
-                        sourceY = maxOffset * (clampNumber(customPosition, 0, 100, DEFAULT_VERTICAL_POSITION) / 100);
-                        break;
-                    case 'middle':
-                    default:
-                        sourceY = maxOffset / 2;
-                        break;
+        // ---- Blurred background ----------------------------------------
+        // Built on a small canvas (cheap enough to redo on every slider move) and
+        // stretched to the frame. Works the same in every browser: no ctx.filter needed.
+        function getBackgroundCanvas(imageData) {
+            const bg = imageData.bg;
+            const key = [bg.blur, bg.brightness, bg.saturation, bg.contrast].join(':');
+
+            if (imageData.bgCache && imageData.bgCache.key === key) {
+                return imageData.bgCache.canvas;
+            }
+
+            const canvas = imageData.bgCache?.canvas || document.createElement('canvas');
+            canvas.width = BG_SMALL_WIDTH;
+            canvas.height = BG_SMALL_HEIGHT;
+
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            const { width: iw, height: ih } = imageSize(imageData.originalImage);
+            const cover = Math.max(BG_SMALL_WIDTH / iw, BG_SMALL_HEIGHT / ih) * 1.06;
+            const drawWidth = iw * cover;
+            const drawHeight = ih * cover;
+
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, BG_SMALL_WIDTH, BG_SMALL_HEIGHT);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(imageData.originalImage, (BG_SMALL_WIDTH - drawWidth) / 2, (BG_SMALL_HEIGHT - drawHeight) / 2, drawWidth, drawHeight);
+
+            const pixels = ctx.getImageData(0, 0, BG_SMALL_WIDTH, BG_SMALL_HEIGHT);
+            const radius = Math.round(1 + (bg.blur / 100) * 11);
+            boxBlur(pixels.data, BG_SMALL_WIDTH, BG_SMALL_HEIGHT, radius, 3);
+            adjustColours(pixels.data, bg);
+            ctx.putImageData(pixels, 0, 0);
+
+            imageData.bgCache = { key, canvas };
+            return canvas;
+        }
+
+        function boxBlur(pixels, width, height, radius, passes) {
+            const a = Float32Array.from(pixels);
+            const b = new Float32Array(pixels.length);
+
+            for (let pass = 0; pass < passes; pass += 1) {
+                blurPass(a, b, width, height, radius, true);
+                blurPass(b, a, width, height, radius, false);
+            }
+
+            for (let i = 0; i < pixels.length; i += 1) {
+                pixels[i] = a[i];
+            }
+        }
+
+        function blurPass(input, output, width, height, radius, horizontal) {
+            const length = horizontal ? width : height;
+            const lines = horizontal ? height : width;
+            const step = horizontal ? 4 : width * 4;
+            const norm = 1 / (radius * 2 + 1);
+
+            for (let line = 0; line < lines; line += 1) {
+                const start = horizontal ? line * width * 4 : line * 4;
+
+                for (let channel = 0; channel < 4; channel += 1) {
+                    const base = start + channel;
+                    let sum = 0;
+
+                    for (let k = -radius; k <= radius; k += 1) {
+                        sum += input[base + Math.min(length - 1, Math.max(0, k)) * step];
+                    }
+
+                    for (let i = 0; i < length; i += 1) {
+                        output[base + i * step] = sum * norm;
+                        sum += input[base + Math.min(length - 1, i + radius + 1) * step];
+                        sum -= input[base + Math.max(0, i - radius) * step];
+                    }
                 }
             }
+        }
 
-            if (sourceWidth > TARGET_WIDTH) {
-                canvas.width = TARGET_WIDTH;
-                canvas.height = TARGET_HEIGHT;
+        function adjustColours(pixels, bg) {
+            const brightness = 1 + bg.brightness / 100;
+            const saturation = 1 + bg.saturation / 100;
+            const contrast = 1 + bg.contrast / 100;
+
+            for (let i = 0; i < pixels.length; i += 4) {
+                let r = pixels[i] * brightness;
+                let g = pixels[i + 1] * brightness;
+                let b = pixels[i + 2] * brightness;
+                const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+                r = (luma + (r - luma) * saturation - 128) * contrast + 128;
+                g = (luma + (g - luma) * saturation - 128) * contrast + 128;
+                b = (luma + (b - luma) * saturation - 128) * contrast + 128;
+
+                pixels[i] = r;
+                pixels[i + 1] = g;
+                pixels[i + 2] = b;
+                pixels[i + 3] = 255;
+            }
+        }
+
+        // ---- Rendering ---------------------------------------------------
+        function renderComposite(ctx, imageData, width, height) {
+            const layout = getLayout(imageData);
+            const k = width / TARGET_WIDTH;
+            const img = imageData.originalImage;
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, width, height);
+
+            if (imageData.mode === 'blur') {
+                ctx.drawImage(getBackgroundCanvas(imageData), 0, 0, width, height);
+                ctx.save();
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+                ctx.shadowBlur = 48 * k;
+                ctx.shadowOffsetY = 10 * k;
+                ctx.drawImage(img, layout.x * k, layout.y * k, layout.width * k, layout.height * k);
+                ctx.restore();
             } else {
-                canvas.width = Math.round(sourceWidth);
-                canvas.height = Math.round(sourceHeight);
+                ctx.drawImage(img, layout.x * k, layout.y * k, layout.width * k, layout.height * k);
             }
 
-            ctx.drawImage(
-                img,
-                sourceX,
-                sourceY,
-                sourceWidth,
-                sourceHeight,
-                0,
-                0,
-                canvas.width,
-                canvas.height
-            );
+            return layout;
+        }
 
-            return canvas.toDataURL('image/png', 0.9);
+        function renderExportBlob(imageData) {
+            const canvas = document.createElement('canvas');
+            canvas.width = TARGET_WIDTH;
+            canvas.height = TARGET_HEIGHT;
+            renderComposite(canvas.getContext('2d'), imageData, TARGET_WIDTH, TARGET_HEIGHT);
+
+            return new Promise((resolve, reject) => {
+                canvas.toBlob(blob => (blob ? resolve(blob) : reject(new Error('export failed'))), 'image/png');
+            });
+        }
+
+        function sizeCanvasToBox(canvas) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            const width = Math.max(1, Math.round((rect.width || 480) * dpr));
+            const height = Math.max(1, Math.round((rect.height || 270) * dpr));
+
+            if (canvas.width !== width || canvas.height !== height) {
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            return { width, height };
+        }
+
+        function renderOutputPreview(imageData, refs) {
+            const { width, height } = sizeCanvasToBox(refs.outCanvas);
+            return renderComposite(refs.outCanvas.getContext('2d'), imageData, width, height);
+        }
+
+        // Original, with whatever falls outside the 16:9 frame shaded.
+        function renderOriginalPreview(imageData, refs, layout) {
+            const canvas = refs.origCanvas;
+            const { width, height } = sizeCanvasToBox(canvas);
+            const ctx = canvas.getContext('2d');
+            const fit = Math.min(width / layout.iw, height / layout.ih);
+            const drawWidth = layout.iw * fit;
+            const drawHeight = layout.ih * fit;
+            const offsetX = (width - drawWidth) / 2;
+            const offsetY = (height - drawHeight) / 2;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(imageData.originalImage, offsetX, offsetY, drawWidth, drawHeight);
+
+            // Visible part of the source, in source pixels.
+            const sx0 = Math.max(0, -layout.x / layout.scale);
+            const sy0 = Math.max(0, -layout.y / layout.scale);
+            const sx1 = Math.min(layout.iw, (TARGET_WIDTH - layout.x) / layout.scale);
+            const sy1 = Math.min(layout.ih, (TARGET_HEIGHT - layout.y) / layout.scale);
+            const cropped = sx0 > 0.5 || sy0 > 0.5 || sx1 < layout.iw - 0.5 || sy1 < layout.ih - 0.5;
+
+            refs.origDisplay = { fit, cropped };
+
+            if (cropped) {
+                const rx = offsetX + sx0 * fit;
+                const ry = offsetY + sy0 * fit;
+                const rw = (sx1 - sx0) * fit;
+                const rh = (sy1 - sy0) * fit;
+
+                ctx.save();
+                ctx.fillStyle = 'rgba(14, 18, 40, 0.62)';
+                ctx.beginPath();
+                ctx.rect(offsetX, offsetY, drawWidth, drawHeight);
+                ctx.rect(rx, ry, rw, rh);
+                ctx.fill('evenodd');
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+                ctx.lineWidth = Math.max(1, (window.devicePixelRatio || 1) * 1.5);
+                ctx.strokeRect(rx, ry, rw, rh);
+                ctx.restore();
+            }
+
+            return cropped;
+        }
+
+        function scheduleRender(imageData) {
+            const refs = cardRefs.get(imageData.id);
+
+            if (!refs || refs.pending) {
+                return;
+            }
+
+            refs.pending = true;
+            requestAnimationFrame(() => {
+                refs.pending = false;
+                renderCard(imageData);
+            });
+        }
+
+        function renderCard(imageData) {
+            const refs = cardRefs.get(imageData.id);
+
+            if (!refs) {
+                return;
+            }
+
+            const layout = renderOutputPreview(imageData, refs);
+            const cropped = renderOriginalPreview(imageData, refs, layout);
+            syncCardControls(imageData, refs, layout, cropped);
+        }
+
+        function snapName(value) {
+            if (Math.abs(value - 0) < 0.01) return 'start';
+            if (Math.abs(value - 0.5) < 0.01) return 'center';
+            if (Math.abs(value - 1) < 0.01) return 'end';
+            return '';
+        }
+
+        function syncCardControls(imageData, refs, layout, cropped) {
+            const mode = imageData.mode;
+            const frame = currentFrame(imageData);
+            const limits = ZOOM_LIMITS[mode];
+            const section = refs.section;
+
+            section.querySelectorAll('[data-action="mode"]').forEach(button => {
+                const active = button.dataset.value === mode;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+
+            refs.zoomLabel.textContent = mode === 'crop' ? 'Zoom' : 'Image size';
+            refs.zoomInput.min = limits.min;
+            refs.zoomInput.max = limits.max;
+            refs.zoomInput.value = frame.zoom;
+            refs.zoomValue.textContent = `${frame.zoom}%`;
+            refs.zoomReset.textContent = mode === 'crop' ? 'Fill' : 'Fit';
+            refs.zoomReset.title = mode === 'crop'
+                ? 'Back to 100%: the smallest zoom that still fills the frame'
+                : 'Back to 100%: the whole image visible, as large as possible';
+            refs.zoomReset.disabled = frame.zoom === 100;
+            refs.zoomReset.style.visibility = frame.zoom === 100 ? 'hidden' : 'visible';
+
+            const locked = isLocked(imageData);
+            refs.lockButton.hidden = mode !== 'blur';
+            refs.lockButton.classList.toggle('active', locked);
+            refs.lockButton.setAttribute('aria-pressed', String(locked));
+            refs.lockButton.innerHTML = locked
+                ? `${lockIcon(true)}<span>Centred</span>`
+                : `${lockIcon(false)}<span>Free</span>`;
+            refs.lockButton.title = locked
+                ? 'Locked to the centre. Click to unlock and move the image.'
+                : 'Click to lock the image back to the centre.';
+
+            ['x', 'y'].forEach(axis => {
+                const movable = !locked && (axis === 'x' ? layout.movableX : layout.movableY);
+                const active = movable ? snapName(frame[axis]) : '';
+                section.querySelectorAll(`[data-action="snap"][data-axis="${axis}"]`).forEach(button => {
+                    const isActive = button.dataset.value === active;
+                    button.disabled = !movable;
+                    button.classList.toggle('active', isActive);
+                    button.setAttribute('aria-pressed', String(isActive));
+                });
+            });
+
+            const canDrag = !locked && (layout.movableX || layout.movableY);
+            refs.outCanvas.classList.toggle('can-drag', canDrag);
+            refs.origCanvas.classList.toggle('can-drag', canDrag && cropped);
+            refs.dragNote.textContent = canDrag ? 'Drag to reposition' : (locked ? 'Centred · unlock to move' : '');
+            refs.origNote.textContent = cropped ? 'Shaded area is cut off' : '';
+
+            refs.hint.innerHTML = getFramingHint(imageData, layout);
+            refs.bgPanel.hidden = mode !== 'blur';
+
+            if (mode === 'blur') {
+                syncBackgroundControls(imageData, refs);
+            }
+        }
+
+        function getFramingHint(imageData, layout) {
+            const frame = currentFrame(imageData);
+            const zoomTip = 'Pinch or <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+scroll on the preview to zoom · double-click to centre.';
+
+            if (imageData.mode === 'crop') {
+                if (frame.zoom === 100) {
+                    if (layout.movableX) return `<strong>Wider than 16:9.</strong> Drag sideways to choose which part is kept. ${zoomTip}`;
+                    if (layout.movableY) return `<strong>Taller than 16:9.</strong> Drag up or down to choose which part is kept. ${zoomTip}`;
+                    return `<strong>Already 16:9</strong>, so nothing is cut off. Zoom in to crop tighter.`;
+                }
+
+                return `Drag the preview to choose what's in frame. ${zoomTip}`;
+            }
+
+            if (frame.locked) {
+                return `<strong>Locked to the centre.</strong> Change the size freely, or click <strong>Centred</strong> to unlock it and drag it into place.`;
+            }
+
+            if (!layout.movableX && !layout.movableY) {
+                return `<strong>The image fills the whole frame</strong>, so the blur doesn't show. Make the image smaller to reveal it.`;
+            }
+
+            if (!layout.movableY) {
+                return `<strong>The image is full height</strong>, so it can only move sideways. Change the size to move it up or down. ${zoomTip}`;
+            }
+
+            if (!layout.movableX) {
+                return `<strong>The image is full width</strong>, so it can only move up or down. Change the size to move it sideways. ${zoomTip}`;
+            }
+
+            return `Drag the image to place it on the background. ${zoomTip}`;
+        }
+
+        function matchingPreset(bg) {
+            return BG_PRESETS.find(preset => BG_SLIDERS.every(slider => preset.values[slider.key] === bg[slider.key]));
+        }
+
+        function formatBgValue(slider, value) {
+            if (!slider.signed) return String(value);
+            return value > 0 ? `+${value}` : String(value);
+        }
+
+        function syncBackgroundControls(imageData, refs) {
+            const preset = matchingPreset(imageData.bg);
+
+            refs.section.querySelectorAll('[data-action="preset"]').forEach(button => {
+                const active = preset && button.dataset.value === preset.id;
+                button.classList.toggle('active', Boolean(active));
+                button.setAttribute('aria-pressed', String(Boolean(active)));
+            });
+
+            BG_SLIDERS.forEach(slider => {
+                const input = refs.section.querySelector(`[data-bg="${slider.key}"]`);
+                const output = refs.section.querySelector(`[data-bg-value="${slider.key}"]`);
+                const value = imageData.bg[slider.key];
+
+                if (Number(input.value) !== value) {
+                    input.value = value;
+                }
+
+                output.textContent = formatBgValue(slider, value);
+                output.classList.toggle('changed', slider.signed && value !== 0);
+            });
+        }
+
+        // ---- Cards -------------------------------------------------------
+        function alignIcon(axis, position) {
+            const frame = '<rect class="toggle-icon-frame" x="2" y="2" width="12" height="12" rx="2.35"></rect>';
+            let bar;
+
+            if (axis === 'y') {
+                const y = { start: 3.8, center: 6.9, end: 10 }[position];
+                bar = `<rect class="toggle-icon-bar" x="4" y="${y}" width="8" height="2.2" rx="1.1"></rect>`;
+            } else {
+                const x = { start: 3.8, center: 6.9, end: 10 }[position];
+                bar = `<rect class="toggle-icon-bar" x="${x}" y="4" width="2.2" height="8" rx="1.1"></rect>`;
+            }
+
+            return `<svg class="toggle-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">${frame}${bar}</svg>`;
+        }
+
+        function lockIcon(locked) {
+            const shackle = locked
+                ? '<path d="M5 7V5.2a3 3 0 0 1 6 0V7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>'
+                : '<path d="M5 7V5.2a3 3 0 0 1 5.8-1.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>';
+            return `<svg class="toggle-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">${shackle}<rect x="3.2" y="7" width="9.6" height="7" rx="1.8" fill="currentColor"></rect></svg>`;
+        }
+
+        function snapButtons(axis) {
+            const names = axis === 'x'
+                ? { start: 'Left', center: 'Centre', end: 'Right' }
+                : { start: 'Top', center: 'Middle', end: 'Bottom' };
+
+            return Object.entries(names).map(([value, label]) => `
+                <button type="button" class="toggle-button icon-toggle-button" data-action="snap" data-axis="${axis}" data-value="${value}" aria-label="${label}" title="${label}">${alignIcon(axis, value)}</button>
+            `).join('');
+        }
+
+        function buildCard(imageData, index) {
+            const section = document.createElement('div');
+            const safeFilename = escapeHtml(imageData.filename);
+            section.className = 'image-section';
+            section.innerHTML = `
+                <div class="image-card-head">
+                    <div class="image-card-meta">
+                        <div class="image-card-kicker">Image ${index + 1}</div>
+                        <h3 class="image-card-title" title="${safeFilename}">${safeFilename}</h3>
+                    </div>
+                </div>
+                <div class="image-grid">
+                    <div class="preview-panel">
+                        <div class="preview-label">Original <span class="preview-label-note" data-role="orig-note"></span></div>
+                        <div class="preview-stage stage-169">
+                            <canvas class="orig-canvas" data-role="orig" aria-label="Original image"></canvas>
+                        </div>
+                    </div>
+                    <div class="preview-panel preview-panel-output">
+                        <div class="preview-label">16:9 output <span class="preview-label-note" data-role="drag-note"></span></div>
+                        <div class="preview-stage stage-169 stage-output">
+                            <canvas class="out-canvas" data-role="out" tabindex="0" aria-label="16:9 output preview. Drag or use the arrow keys to reposition, plus and minus to zoom."></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-area">
+                    <div class="control-row">
+                        <div class="field-row">
+                            <label>Output style</label>
+                            <div class="output-style-toggle" role="group" aria-label="Output style">
+                                <button type="button" class="toggle-button" data-action="mode" data-value="crop" title="Fill the 16:9 frame, cutting off whatever doesn't fit">Crop to fill</button>
+                                <button type="button" class="toggle-button" data-action="mode" data-value="blur" title="Keep the whole image, filling the gaps with a blurred copy">Blur background</button>
+                            </div>
+                        </div>
+                        <div class="field-row">
+                            <label data-role="zoom-label">Zoom</label>
+                            <div class="zoom-row">
+                                <input type="range" class="slider-input" data-role="zoom" step="1" aria-label="Zoom">
+                                <span class="value-chip" data-role="zoom-value"></span>
+                                <button type="button" class="mini-btn" data-action="zoom-reset">Fit</button>
+                            </div>
+                        </div>
+                        <div class="field-row">
+                            <label>Position</label>
+                            <div class="position-groups">
+                                <button type="button" class="lock-toggle" data-action="lock" hidden></button>
+                                <div class="output-style-toggle" role="group" aria-label="Horizontal position">${snapButtons('x')}</div>
+                                <div class="output-style-toggle" role="group" aria-label="Vertical position">${snapButtons('y')}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="framing-hint" data-role="hint"></div>
+                    <div class="bg-panel" data-role="bg-panel" hidden>
+                        <div class="bg-panel-head">
+                            <span class="section-label">Background</span>
+                            <div class="preset-row" role="group" aria-label="Background presets">
+                                ${BG_PRESETS.map(preset => `<button type="button" class="preset-chip" data-action="preset" data-value="${preset.id}">${preset.label}</button>`).join('')}
+                            </div>
+                        </div>
+                        <div class="bg-sliders">
+                            ${BG_SLIDERS.map(slider => `
+                                <div class="bg-slider">
+                                    <label for="bg-${slider.key}-${imageData.id}">${slider.label}</label>
+                                    <input type="range" class="slider-input" id="bg-${slider.key}-${imageData.id}" data-bg="${slider.key}" min="${slider.min}" max="${slider.max}" step="1" ${slider.signed ? 'list="bgZeroTick"' : ''} title="Double-click to reset">
+                                    <output data-bg-value="${slider.key}"></output>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        ${processedImages.length > 1 ? '<button type="button" class="btn btn-secondary" data-action="apply-all" title="Copy this style, size, position and background to every image">Use these settings for all images</button>' : ''}
+                        <button type="button" class="btn btn-primary" data-action="download">Download this image</button>
+                    </div>
+                </div>
+            `;
+
+            const refs = {
+                section,
+                outCanvas: section.querySelector('[data-role="out"]'),
+                origCanvas: section.querySelector('[data-role="orig"]'),
+                zoomInput: section.querySelector('[data-role="zoom"]'),
+                zoomValue: section.querySelector('[data-role="zoom-value"]'),
+                zoomLabel: section.querySelector('[data-role="zoom-label"]'),
+                zoomReset: section.querySelector('[data-action="zoom-reset"]'),
+                hint: section.querySelector('[data-role="hint"]'),
+                bgPanel: section.querySelector('[data-role="bg-panel"]'),
+                dragNote: section.querySelector('[data-role="drag-note"]'),
+                origNote: section.querySelector('[data-role="orig-note"]'),
+                lockButton: section.querySelector('[data-action="lock"]'),
+                pending: false,
+                origDisplay: { fit: 1, cropped: false }
+            };
+
+            cardRefs.set(imageData.id, refs);
+            bindCard(imageData, refs);
+            return section;
+        }
+
+        function bindCard(imageData, refs) {
+            const { section, outCanvas, origCanvas } = refs;
+
+            section.addEventListener('click', event => {
+                const button = event.target.closest('[data-action]');
+
+                if (!button || button.disabled) {
+                    return;
+                }
+
+                const action = button.dataset.action;
+
+                if (action === 'mode') {
+                    imageData.mode = button.dataset.value === 'blur' ? 'blur' : 'crop';
+                } else if (action === 'snap') {
+                    currentFrame(imageData)[button.dataset.axis] = POSITION_SNAPS[button.dataset.value];
+                } else if (action === 'lock') {
+                    setLocked(imageData, !isLocked(imageData));
+                } else if (action === 'zoom-reset') {
+                    setZoom(imageData, 100);
+                } else if (action === 'preset') {
+                    const preset = BG_PRESETS.find(item => item.id === button.dataset.value);
+                    if (preset) imageData.bg = { ...preset.values };
+                } else if (action === 'apply-all') {
+                    applySettingsToAll(imageData);
+                    return;
+                } else if (action === 'download') {
+                    downloadSingle(processedImages.indexOf(imageData));
+                    return;
+                }
+
+                scheduleRender(imageData);
+            });
+
+            refs.zoomInput.addEventListener('input', () => {
+                setZoom(imageData, refs.zoomInput.value);
+                scheduleRender(imageData);
+            });
+
+            refs.zoomInput.addEventListener('dblclick', () => {
+                setZoom(imageData, 100);
+                scheduleRender(imageData);
+            });
+
+            section.querySelectorAll('[data-bg]').forEach(input => {
+                const key = input.dataset.bg;
+                input.addEventListener('input', () => {
+                    imageData.bg = { ...imageData.bg, [key]: Math.round(Number(input.value)) };
+                    scheduleRender(imageData);
+                });
+                input.addEventListener('dblclick', () => {
+                    imageData.bg = { ...imageData.bg, [key]: DEFAULT_BG[key] };
+                    scheduleRender(imageData);
+                });
+            });
+
+            // Drag on the output moves the image with the pointer.
+            attachDrag(outCanvas, (dx, dy) => {
+                const k = TARGET_WIDTH / (outCanvas.getBoundingClientRect().width || 1);
+                nudgeLayer(imageData, dx * k, dy * k);
+                scheduleRender(imageData);
+            });
+
+            // Drag on the original moves the frame window, i.e. the opposite way.
+            attachDrag(origCanvas, (dx, dy) => {
+                if (!refs.origDisplay.cropped) return;
+                const dpr = window.devicePixelRatio || 1;
+                const layout = getLayout(imageData);
+                const k = (dpr / refs.origDisplay.fit) * layout.scale;
+                nudgeLayer(imageData, -dx * k, -dy * k);
+                scheduleRender(imageData);
+            });
+
+            outCanvas.addEventListener('dblclick', () => {
+                const frame = currentFrame(imageData);
+                frame.x = 0.5;
+                frame.y = 0.5;
+                scheduleRender(imageData);
+            });
+
+            outCanvas.addEventListener('wheel', event => {
+                if (!event.ctrlKey && !event.metaKey) {
+                    return;
+                }
+
+                event.preventDefault();
+                const frame = currentFrame(imageData);
+                setZoom(imageData, frame.zoom * Math.exp(-event.deltaY * 0.01));
+                scheduleRender(imageData);
+            }, { passive: false });
+
+            outCanvas.addEventListener('keydown', event => {
+                const step = event.shiftKey ? 80 : 16;
+                const moves = {
+                    ArrowLeft: [-step, 0],
+                    ArrowRight: [step, 0],
+                    ArrowUp: [0, -step],
+                    ArrowDown: [0, step]
+                };
+
+                if (moves[event.key]) {
+                    event.preventDefault();
+                    nudgeLayer(imageData, ...moves[event.key]);
+                } else if (event.key === '+' || event.key === '=') {
+                    setZoom(imageData, currentFrame(imageData).zoom + 5);
+                } else if (event.key === '-' || event.key === '_') {
+                    setZoom(imageData, currentFrame(imageData).zoom - 5);
+                } else if (event.key === '0') {
+                    setZoom(imageData, 100);
+                } else {
+                    return;
+                }
+
+                scheduleRender(imageData);
+            });
+        }
+
+        function attachDrag(canvas, onMove) {
+            let last = null;
+
+            canvas.addEventListener('pointerdown', event => {
+                if (!canvas.classList.contains('can-drag') || event.button !== 0) {
+                    return;
+                }
+
+                event.preventDefault();
+                canvas.setPointerCapture(event.pointerId);
+                canvas.classList.add('dragging');
+                last = { x: event.clientX, y: event.clientY };
+            });
+
+            canvas.addEventListener('pointermove', event => {
+                if (!last) return;
+                const dx = event.clientX - last.x;
+                const dy = event.clientY - last.y;
+                last = { x: event.clientX, y: event.clientY };
+                onMove(dx, dy);
+            });
+
+            const end = () => {
+                last = null;
+                canvas.classList.remove('dragging');
+            };
+
+            canvas.addEventListener('pointerup', end);
+            canvas.addEventListener('pointercancel', end);
+        }
+
+        function applySettingsToAll(sourceImage) {
+            processedImages.forEach(imageData => {
+                if (imageData === sourceImage) return;
+                imageData.mode = sourceImage.mode;
+                imageData.frames = {
+                    crop: { ...sourceImage.frames.crop },
+                    blur: { ...sourceImage.frames.blur }
+                };
+                imageData.bg = { ...sourceImage.bg };
+                scheduleRender(imageData);
+            });
+
+            showStatus(`Applied to all ${processedImages.length} images. You can still tweak each one.`, 'info');
         }
 
         function displayImages() {
             imagesGrid.innerHTML = '';
+            cardRefs.clear();
             updateBatchSummary();
 
             processedImages.forEach((imageData, index) => {
-                const imageSection = document.createElement('div');
-                imageSection.className = 'image-section';
-
-                const showCropControls = imageData.currentMethod === 'crop';
-                const showCustomCropControls = showCropControls && imageData.currentAlignment === 'custom';
-                const showBlurControls = imageData.currentMethod === 'blur';
-                const showBlurCustomControls = showBlurControls && imageData.blurAlignment === 'custom';
-                const safeFilename = escapeHtml(imageData.filename);
-                const methodLabel = getMethodLabel(imageData);
-                const methodClass = imageData.currentMethod === 'blur' ? 'method-badge blur' : 'method-badge';
-
-                imageSection.innerHTML = `
-                    <div class="image-card-head">
-                        <div class="image-card-meta">
-                            <div class="image-card-kicker">Image ${index + 1}</div>
-                            <h3 class="image-card-title" title="${safeFilename}">${safeFilename}</h3>
-                        </div>
-                        <div id="methodBadge${index}" class="${methodClass}">${methodLabel}</div>
-                    </div>
-                    <div class="image-grid">
-                        <div class="preview-panel">
-                            <div class="preview-label">Original</div>
-                            <div class="preview-stage">
-                                <img src="${imageData.original}" alt="Original" class="original-image">
-                            </div>
-                        </div>
-                        <div class="preview-panel preview-panel-output">
-                            <div class="preview-label">16:9 output</div>
-                            <div class="output-preview-shell">
-                                <div class="preview-stage">
-                                    <img src="${getCurrentImageOutput(imageData)}" alt="Processed output" class="cropped-image">
-                                    <div id="cropPreview${index}" class="crop-preview" style="display: ${showCustomCropControls ? 'block' : 'none'};">
-                                        <canvas id="previewCanvas${index}" class="preview-canvas"></canvas>
-                                    </div>
-                                </div>
-                                <div id="customAlignmentControl${index}" class="vertical-slider-control" style="display: ${showCustomCropControls ? 'grid' : 'none'};">
-                                    <div class="vertical-slider-title">Crop</div>
-                                    <div class="vertical-slider-edge">Top</div>
-                                    <input type="range" id="verticalSlider${index}" class="slider-input slider-input-vertical" min="0" max="100" value="${imageData.customVerticalPosition}"
-                                           oninput="updateCustomAlignmentPreview(${index}, this.value)"
-                                           onchange="updateCustomAlignment(${index}, this.value)">
-                                    <div class="vertical-slider-edge">Bottom</div>
-                                    <span id="verticalValue${index}" class="value-chip">${imageData.customVerticalPosition}%</span>
-                                </div>
-                                <div id="blurCustomPosition${index}" class="vertical-slider-control" style="display: ${showBlurCustomControls ? 'grid' : 'none'};">
-                                    <div class="vertical-slider-title">Blur</div>
-                                    <div class="vertical-slider-edge">Top</div>
-                                    <input type="range" id="blurVerticalSlider${index}" class="slider-input slider-input-vertical" min="0" max="100" value="${imageData.blurCustomPosition}"
-                                           oninput="updateBlurCustomPosition(${index}, this.value)"
-                                           onchange="updateBlurCustomPosition(${index}, this.value)">
-                                    <div class="vertical-slider-edge">Bottom</div>
-                                    <span id="blurVerticalValue${index}" class="value-chip">${imageData.blurCustomPosition}%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="control-area">
-                        <div class="control-panel">
-                            <div class="control-grid">
-                                <div class="field-row">
-                                    <label for="cropMethodCrop${index}">Output style</label>
-                                    <div id="cropMethod${index}" class="output-style-toggle" role="tablist" aria-label="Output style">
-                                        <button type="button" id="cropMethodCrop${index}" class="toggle-button ${imageData.currentMethod === 'crop' ? 'active' : ''}" aria-pressed="${imageData.currentMethod === 'crop'}" onclick="updateCropMethod(${index}, 'crop')">
-                                            Crop
-                                        </button>
-                                        <button type="button" id="cropMethodBlur${index}" class="toggle-button ${imageData.currentMethod === 'blur' ? 'active' : ''}" aria-pressed="${imageData.currentMethod === 'blur'}" onclick="updateCropMethod(${index}, 'blur')">
-                                            Blur
-                                        </button>
-                                    </div>
-                                </div>
-                                <div id="alignmentControl${index}" class="field-row" style="display: ${showCropControls ? 'grid' : 'none'};">
-                                    <label>Vertical alignment</label>
-                                    <div id="cropAlignment${index}" class="output-style-toggle" role="group" aria-label="Vertical alignment">
-                                        <button type="button" id="cropAlignmentTop${index}" class="toggle-button toggle-option icon-toggle-button ${imageData.currentAlignment === 'top' ? 'active' : ''}" aria-label="Top" title="Top" aria-pressed="${imageData.currentAlignment === 'top'}" onclick="updateCropAlignment(${index}, 'top')">
-                                            ${getPositionToggleIcon('top')}
-                                        </button>
-                                        <button type="button" id="cropAlignmentMiddle${index}" class="toggle-button toggle-option icon-toggle-button ${imageData.currentAlignment === 'middle' ? 'active' : ''}" aria-label="Middle" title="Middle" aria-pressed="${imageData.currentAlignment === 'middle'}" onclick="updateCropAlignment(${index}, 'middle')">
-                                            ${getPositionToggleIcon('middle')}
-                                        </button>
-                                        <button type="button" id="cropAlignmentBottom${index}" class="toggle-button toggle-option icon-toggle-button ${imageData.currentAlignment === 'bottom' ? 'active' : ''}" aria-label="Bottom" title="Bottom" aria-pressed="${imageData.currentAlignment === 'bottom'}" onclick="updateCropAlignment(${index}, 'bottom')">
-                                            ${getPositionToggleIcon('bottom')}
-                                        </button>
-                                        <button type="button" id="cropAlignmentCustom${index}" class="toggle-button toggle-option icon-toggle-button ${imageData.currentAlignment === 'custom' ? 'active' : ''}" aria-label="Custom" title="Custom" aria-pressed="${imageData.currentAlignment === 'custom'}" onclick="updateCropAlignment(${index}, 'custom')">
-                                            ${getPositionToggleIcon('custom')}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="blurControls${index}" class="control-panel secondary" style="display: ${showBlurControls ? 'grid' : 'none'};">
-                            <div class="control-grid">
-                                <div class="field-row">
-                                    <label>Foreground position</label>
-                                    <div id="blurAlignmentSelect${index}" class="output-style-toggle" role="group" aria-label="Foreground position">
-                                        <button type="button" id="blurAlignmentTop${index}" class="toggle-button toggle-option icon-toggle-button ${imageData.blurAlignment === 'top' ? 'active' : ''}" aria-label="Top" title="Top" aria-pressed="${imageData.blurAlignment === 'top'}" onclick="updateBlurAlignment(${index}, 'top')">
-                                            ${getPositionToggleIcon('top')}
-                                        </button>
-                                        <button type="button" id="blurAlignmentMiddle${index}" class="toggle-button toggle-option icon-toggle-button ${imageData.blurAlignment === 'middle' ? 'active' : ''}" aria-label="Middle" title="Middle" aria-pressed="${imageData.blurAlignment === 'middle'}" onclick="updateBlurAlignment(${index}, 'middle')">
-                                            ${getPositionToggleIcon('middle')}
-                                        </button>
-                                        <button type="button" id="blurAlignmentBottom${index}" class="toggle-button toggle-option icon-toggle-button ${imageData.blurAlignment === 'bottom' ? 'active' : ''}" aria-label="Bottom" title="Bottom" aria-pressed="${imageData.blurAlignment === 'bottom'}" onclick="updateBlurAlignment(${index}, 'bottom')">
-                                            ${getPositionToggleIcon('bottom')}
-                                        </button>
-                                        <button type="button" id="blurAlignmentCustom${index}" class="toggle-button toggle-option icon-toggle-button ${imageData.blurAlignment === 'custom' ? 'active' : ''}" aria-label="Custom" title="Custom" aria-pressed="${imageData.blurAlignment === 'custom'}" onclick="updateBlurAlignment(${index}, 'custom')">
-                                            ${getPositionToggleIcon('custom')}
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="slider-card">
-                                    <div class="slider-card-title">Foreground zoom</div>
-                                    <div class="slider-row">
-                                        <input type="range" id="blurZoomSlider${index}" class="slider-input" min="25" max="150" value="${imageData.blurZoom}"
-                                               oninput="updateBlurZoom(${index}, this.value)"
-                                               onchange="updateBlurZoom(${index}, this.value)">
-                                        <span id="blurZoomValue${index}" class="value-chip">${imageData.blurZoom}%</span>
-                                    </div>
-                                </div>
-                                <div class="slider-card">
-                                    <div class="slider-card-title">Background contrast</div>
-                                    <div class="slider-row">
-                                        <input type="range" id="contrastSlider${index}" class="slider-input" min="0" max="100" value="${imageData.backgroundContrast}"
-                                               onchange="updateBackgroundSettings(${index})">
-                                        <span id="contrastValue${index}" class="value-chip">${imageData.backgroundContrast}%</span>
-                                    </div>
-                                </div>
-                                <div class="slider-card">
-                                    <div class="slider-card-title">Background saturation</div>
-                                    <div class="slider-row">
-                                        <input type="range" id="saturationSlider${index}" class="slider-input" min="0" max="100" value="${imageData.backgroundSaturation}"
-                                               onchange="updateBackgroundSettings(${index})">
-                                        <span id="saturationValue${index}" class="value-chip">${imageData.backgroundSaturation}%</span>
-                                    </div>
-                                </div>
-                                <div class="slider-card">
-                                    <div class="slider-card-title">Background brightness</div>
-                                    <div class="slider-row">
-                                        <input type="range" id="brightnessSlider${index}" class="slider-input" min="0" max="100" value="${imageData.backgroundBrightness}"
-                                               onchange="updateBackgroundSettings(${index})">
-                                        <span id="brightnessValue${index}" class="value-chip">${imageData.backgroundBrightness}%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="control-note">Zoom runs from 25% to 150%, with full control over foreground placement and background styling.</div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn btn-primary" onclick="downloadSingle(${index})">
-                                Download This Image
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                imagesGrid.appendChild(imageSection);
+                imagesGrid.appendChild(buildCard(imageData, index));
             });
 
-            requestAnimationFrame(() => {
-                processedImages.forEach((imageData, index) => {
-                    if (imageData.currentMethod === 'crop' && imageData.currentAlignment === 'custom') {
-                        initializeCropPreview(index);
-                    }
-                });
-            });
+            requestAnimationFrame(() => processedImages.forEach(renderCard));
         }
 
-        function refreshOutput(imageIndex, options = {}) {
-            const imageData = processedImages[imageIndex];
-            const imageSection = imagesGrid.children[imageIndex];
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => processedImages.forEach(scheduleRender), 120);
+        });
 
-            if (!imageData || !imageSection) {
-                return;
-            }
-
-            const croppedImg = imageSection.querySelector('.cropped-image');
-            const alignmentControl = document.getElementById(`alignmentControl${imageIndex}`);
-            const customAlignmentControl = document.getElementById(`customAlignmentControl${imageIndex}`);
-            const cropPreview = document.getElementById(`cropPreview${imageIndex}`);
-            const blurControls = document.getElementById(`blurControls${imageIndex}`);
-            const blurCustomControl = document.getElementById(`blurCustomPosition${imageIndex}`);
-            const methodBadge = document.getElementById(`methodBadge${imageIndex}`);
-            const cropMethodCropButton = document.getElementById(`cropMethodCrop${imageIndex}`);
-            const cropMethodBlurButton = document.getElementById(`cropMethodBlur${imageIndex}`);
-            const cropAlignmentTopButton = document.getElementById(`cropAlignmentTop${imageIndex}`);
-            const cropAlignmentMiddleButton = document.getElementById(`cropAlignmentMiddle${imageIndex}`);
-            const cropAlignmentBottomButton = document.getElementById(`cropAlignmentBottom${imageIndex}`);
-            const cropAlignmentCustomButton = document.getElementById(`cropAlignmentCustom${imageIndex}`);
-            const blurAlignmentTopButton = document.getElementById(`blurAlignmentTop${imageIndex}`);
-            const blurAlignmentMiddleButton = document.getElementById(`blurAlignmentMiddle${imageIndex}`);
-            const blurAlignmentBottomButton = document.getElementById(`blurAlignmentBottom${imageIndex}`);
-            const blurAlignmentCustomButton = document.getElementById(`blurAlignmentCustom${imageIndex}`);
-
-            croppedImg.src = getCurrentImageOutput(imageData);
-            alignmentControl.style.display = imageData.currentMethod === 'crop' ? 'grid' : 'none';
-            customAlignmentControl.style.display = imageData.currentMethod === 'crop' && imageData.currentAlignment === 'custom' ? 'grid' : 'none';
-            cropPreview.style.display = imageData.currentMethod === 'crop' && imageData.currentAlignment === 'custom' ? 'block' : 'none';
-            blurControls.style.display = imageData.currentMethod === 'blur' ? 'grid' : 'none';
-            blurCustomControl.style.display = imageData.currentMethod === 'blur' && imageData.blurAlignment === 'custom' ? 'grid' : 'none';
-            methodBadge.textContent = getMethodLabel(imageData);
-            methodBadge.className = imageData.currentMethod === 'blur' ? 'method-badge blur' : 'method-badge';
-
-            if (cropMethodCropButton && cropMethodBlurButton) {
-                const isCrop = imageData.currentMethod === 'crop';
-                cropMethodCropButton.className = isCrop ? 'toggle-button active' : 'toggle-button';
-                cropMethodBlurButton.className = isCrop ? 'toggle-button' : 'toggle-button active';
-                cropMethodCropButton.setAttribute('aria-pressed', String(isCrop));
-                cropMethodBlurButton.setAttribute('aria-pressed', String(!isCrop));
-            }
-
-            updateToggleButtonState(
-                {
-                    top: cropAlignmentTopButton,
-                    middle: cropAlignmentMiddleButton,
-                    bottom: cropAlignmentBottomButton,
-                    custom: cropAlignmentCustomButton
-                },
-                imageData.currentAlignment
-            );
-
-            updateToggleButtonState(
-                {
-                    top: blurAlignmentTopButton,
-                    middle: blurAlignmentMiddleButton,
-                    bottom: blurAlignmentBottomButton,
-                    custom: blurAlignmentCustomButton
-                },
-                imageData.blurAlignment
-            );
-
-            if (imageData.currentMethod === 'crop' && imageData.currentAlignment === 'custom' && options.skipPreview !== true) {
-                requestAnimationFrame(() => initializeCropPreview(imageIndex));
-            }
-        }
-
-        function updateToggleButtonState(buttonMap, activeKey) {
-            Object.entries(buttonMap).forEach(([key, button]) => {
-                if (!button) {
-                    return;
-                }
-
-                const isActive = key === activeKey;
-                button.classList.toggle('active', isActive);
-                button.setAttribute('aria-pressed', String(isActive));
-            });
-        }
-
-        function updateCropMethod(imageIndex, method) {
-            const imageData = processedImages[imageIndex];
-            imageData.currentMethod = method === 'blur' ? 'blur' : 'crop';
-            refreshOutput(imageIndex);
-        }
-
-        function updateCropAlignment(imageIndex, alignment) {
-            const imageData = processedImages[imageIndex];
-            imageData.currentAlignment = alignment === 'custom' ? 'custom' : ['top', 'middle', 'bottom'].includes(alignment) ? alignment : DEFAULT_ALIGNMENT;
-            refreshOutput(imageIndex);
-        }
-
-        function updateCustomAlignmentPreview(imageIndex, position) {
-            const imageData = processedImages[imageIndex];
-            const safePosition = clampNumber(position, 0, 100, DEFAULT_VERTICAL_POSITION);
-            document.getElementById(`verticalValue${imageIndex}`).textContent = `${safePosition}%`;
-
-            if (imageData.currentMethod !== 'crop' || imageData.currentAlignment !== 'custom') {
-                return;
-            }
-
-            const canvas = document.getElementById(`previewCanvas${imageIndex}`);
-            if (!canvas) {
-                return;
-            }
-
-            const ctx = canvas.getContext('2d');
-            const img = imageData.originalImage;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const sourceRatio = img.width / img.height;
-
-            if (sourceRatio <= TARGET_RATIO) {
-                const sourceHeight = img.width / TARGET_RATIO;
-                const maxOffset = img.height - sourceHeight;
-                const sourceY = maxOffset * (safePosition / 100);
-                const scale = Math.min(canvas.width / img.width, canvas.height / sourceHeight);
-                const drawWidth = img.width * scale;
-                const drawHeight = sourceHeight * scale;
-                const drawX = (canvas.width - drawWidth) / 2;
-                const drawY = (canvas.height - drawHeight) / 2;
-
-                ctx.drawImage(
-                    img,
-                    0,
-                    sourceY,
-                    img.width,
-                    sourceHeight,
-                    drawX,
-                    drawY,
-                    drawWidth,
-                    drawHeight
-                );
-            } else {
-                const sourceWidth = img.height * TARGET_RATIO;
-                const sourceX = (img.width - sourceWidth) / 2;
-                const scale = Math.min(canvas.width / sourceWidth, canvas.height / img.height);
-                const drawWidth = sourceWidth * scale;
-                const drawHeight = img.height * scale;
-                const drawX = (canvas.width - drawWidth) / 2;
-                const drawY = (canvas.height - drawHeight) / 2;
-
-                ctx.drawImage(
-                    img,
-                    sourceX,
-                    0,
-                    sourceWidth,
-                    img.height,
-                    drawX,
-                    drawY,
-                    drawWidth,
-                    drawHeight
-                );
-            }
-        }
-
-        function initializeCropPreview(imageIndex) {
-            const imageData = processedImages[imageIndex];
-            const canvas = document.getElementById(`previewCanvas${imageIndex}`);
-
-            if (!canvas || !imageData) {
-                return;
-            }
-
-            const croppedImg = imagesGrid.children[imageIndex]?.querySelector('.cropped-image');
-            canvas.width = croppedImg?.offsetWidth || 400;
-            canvas.height = croppedImg?.offsetHeight || 225;
-            updateCustomAlignmentPreview(imageIndex, imageData.customVerticalPosition);
-        }
-
-        function updateCustomAlignment(imageIndex, position) {
-            const imageData = processedImages[imageIndex];
-            imageData.customVerticalPosition = clampNumber(position, 0, 100, DEFAULT_VERTICAL_POSITION);
-            document.getElementById(`verticalSlider${imageIndex}`).value = imageData.customVerticalPosition;
-            document.getElementById(`verticalValue${imageIndex}`).textContent = `${imageData.customVerticalPosition}%`;
-            refreshOutput(imageIndex, { skipPreview: true });
-            updateCustomAlignmentPreview(imageIndex, imageData.customVerticalPosition);
-        }
-
-        function updateBlurAlignment(imageIndex, alignment) {
-            const imageData = processedImages[imageIndex];
-            imageData.blurAlignment = alignment === 'custom' ? 'custom' : ['top', 'middle', 'bottom'].includes(alignment) ? alignment : DEFAULT_ALIGNMENT;
-            refreshOutput(imageIndex, { skipPreview: true });
-        }
-
-        function updateBlurCustomPosition(imageIndex, position) {
-            const imageData = processedImages[imageIndex];
-            imageData.blurCustomPosition = clampNumber(position, 0, 100, DEFAULT_VERTICAL_POSITION);
-            document.getElementById(`blurVerticalSlider${imageIndex}`).value = imageData.blurCustomPosition;
-            document.getElementById(`blurVerticalValue${imageIndex}`).textContent = `${imageData.blurCustomPosition}%`;
-
-            if (imageData.blurAlignment === 'custom') {
-                refreshOutput(imageIndex, { skipPreview: true });
-            }
-        }
-
-        function updateBlurZoom(imageIndex, zoom) {
-            const imageData = processedImages[imageIndex];
-            imageData.blurZoom = clampNumber(zoom, 25, 150, DEFAULT_BLUR_ZOOM);
-            document.getElementById(`blurZoomSlider${imageIndex}`).value = imageData.blurZoom;
-            document.getElementById(`blurZoomValue${imageIndex}`).textContent = `${imageData.blurZoom}%`;
-            refreshOutput(imageIndex, { skipPreview: true });
-        }
-
-        function updateBackgroundSettings(imageIndex) {
-            const imageData = processedImages[imageIndex];
-            imageData.backgroundContrast = clampNumber(document.getElementById(`contrastSlider${imageIndex}`).value, 0, 100, DEFAULT_BACKGROUND_VALUE);
-            imageData.backgroundSaturation = clampNumber(document.getElementById(`saturationSlider${imageIndex}`).value, 0, 100, DEFAULT_BACKGROUND_VALUE);
-            imageData.backgroundBrightness = clampNumber(document.getElementById(`brightnessSlider${imageIndex}`).value, 0, 100, DEFAULT_BACKGROUND_VALUE);
-
-            document.getElementById(`contrastValue${imageIndex}`).textContent = `${imageData.backgroundContrast}%`;
-            document.getElementById(`saturationValue${imageIndex}`).textContent = `${imageData.backgroundSaturation}%`;
-            document.getElementById(`brightnessValue${imageIndex}`).textContent = `${imageData.backgroundBrightness}%`;
-            refreshOutput(imageIndex, { skipPreview: true });
-        }
-
-        async function downloadDataUrl(dataUrl, filename) {
-            const response = await fetch(dataUrl);
-            const blob = await response.blob();
+        // ---- Downloads ---------------------------------------------------
+        function downloadBlob(blob, filename) {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
 
@@ -1823,21 +2264,12 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            setTimeout(() => window.URL.revokeObjectURL(url), 1000);
         }
 
         function buildDownloadFilename(imageData) {
-            const baseName = sanitizeDownloadName(getFileNameWithoutExtension(imageData.filename));
-
-            if (imageData.currentMethod === 'blur') {
-                return `16x9_blur_${baseName}.png`;
-            }
-
-            if (imageData.currentAlignment === 'custom') {
-                return `16x9_custom_${imageData.customVerticalPosition}%_${baseName}.png`;
-            }
-
-            return `16x9_${imageData.currentAlignment}_${baseName}.png`;
+            const baseName = sanitizeDownloadName(getFileNameWithoutExtension(imageData.filename.split(' / ').pop()));
+            return `16x9_${imageData.mode}_${baseName}.png`;
         }
 
         async function downloadSingle(index) {
@@ -1848,39 +2280,58 @@
             }
 
             try {
-                await downloadDataUrl(getCurrentImageOutput(imageData), buildDownloadFilename(imageData));
+                downloadBlob(await renderExportBlob(imageData), buildDownloadFilename(imageData));
             } catch (error) {
                 showStatus(`Download failed for ${imageData.filename}. Please try again.`, 'error');
             }
         }
 
-        function downloadAll() {
+        async function downloadAll() {
             if (isDownloadingAll || !processedImages.length) {
+                return;
+            }
+
+            if (processedImages.length === 1) {
+                downloadSingle(0);
                 return;
             }
 
             isDownloadingAll = true;
 
-            (async () => {
-                try {
+            try {
+                if (window.fflate && typeof window.fflate.zipSync === 'function') {
+                    const entries = {};
+                    const usedNames = new Set();
+
                     for (let index = 0; index < processedImages.length; index += 1) {
+                        setProcessingState(true, `Rendering ${index + 1} of ${processedImages.length}…`);
+                        await nextFrame();
                         const imageData = processedImages[index];
+                        let name = buildDownloadFilename(imageData);
+                        let counter = 2;
 
-                        try {
-                            await downloadDataUrl(getCurrentImageOutput(imageData), buildDownloadFilename(imageData));
-                        } catch (error) {
-                            showStatus(`At least one download failed. Please retry the affected image.`, 'error');
-                            break;
+                        while (usedNames.has(name)) {
+                            name = buildDownloadFilename(imageData).replace(/\.png$/, `_${counter}.png`);
+                            counter += 1;
                         }
 
-                        if (index < processedImages.length - 1) {
-                            await new Promise(resolve => setTimeout(resolve, DOWNLOAD_ALL_DELAY_MS));
-                        }
+                        usedNames.add(name);
+                        entries[name] = [new Uint8Array(await (await renderExportBlob(imageData)).arrayBuffer()), { level: 0 }];
                     }
-                } finally {
-                    isDownloadingAll = false;
+
+                    downloadBlob(new Blob([window.fflate.zipSync(entries)], { type: 'application/zip' }), '16x9_images.zip');
+                } else {
+                    for (let index = 0; index < processedImages.length; index += 1) {
+                        await downloadSingle(index);
+                        await new Promise(resolve => setTimeout(resolve, DOWNLOAD_ALL_DELAY_MS));
+                    }
                 }
-            })();
+            } catch (error) {
+                showStatus('Download All failed. Please try again, or download images one at a time.', 'error');
+            } finally {
+                isDownloadingAll = false;
+                setProcessingState(false);
+            }
         }
 
         function getFileNameWithoutExtension(filename) {
@@ -1905,18 +2356,6 @@
                 '"': '&quot;',
                 "'": '&#39;'
             })[character]);
-        }
-
-        function getMethodLabel(imageData) {
-            if (imageData.currentMethod === 'blur') {
-                return 'Blur background';
-            }
-
-            if (imageData.currentAlignment === 'custom') {
-                return 'Custom crop';
-            }
-
-            return 'Crop to fit';
         }
 
         function updateBatchSummary() {
@@ -1944,6 +2383,7 @@
             });
 
             processedImages = [];
+            cardRefs.clear();
             imagesGrid.innerHTML = '';
             imageContainer.style.display = 'none';
             fileInput.value = '';
@@ -1955,12 +2395,12 @@
         updateEmptyState();
 
         window.imageCropperDebug = {
-            cropTo16x9,
-            createBlurBackground,
+            getLayout,
+            renderExportBlob,
             buildDownloadFilename,
-            getCropImage,
-            getBlurImage,
-            extractSupportedFilesFromZip
+            getBackgroundCanvas,
+            extractSupportedFilesFromZip,
+            get images() { return processedImages; }
         };
     </script>
 </body>
