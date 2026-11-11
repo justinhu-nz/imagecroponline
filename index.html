@@ -914,6 +914,11 @@
             touch-action: none;
         }
 
+        /* The output preview always handles pinch-to-zoom itself, even when there is nothing to drag. */
+        .out-canvas {
+            touch-action: none;
+        }
+
         .orig-canvas.dragging,
         .out-canvas.dragging {
             cursor: grabbing;
@@ -981,7 +986,7 @@
 
         .zoom-row {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) auto auto;
+            grid-template-columns: minmax(0, 1fr) auto auto auto;
             gap: 8px;
             align-items: center;
             min-height: 38px;
@@ -997,6 +1002,23 @@
             border-radius: 999px;
             padding: 5px 10px;
             cursor: pointer;
+        }
+
+        .step-select {
+            font-family: var(--font-display);
+            font-size: 0.74rem;
+            font-weight: 650;
+            color: var(--accent);
+            background: var(--accent-soft);
+            border: 0;
+            border-radius: 999px;
+            padding: 5px 8px;
+            cursor: pointer;
+        }
+
+        .step-select:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
         }
 
         .mini-btn:hover {
@@ -1677,9 +1699,66 @@
             }
         }
 
-        function setZoom(imageData, zoom) {
+        // Zoom is stored unrounded: rounding here swallowed the small steps a trackpad pinch
+        // sends (e.g. 100 -> 99.7 rounded back to 100), so pinching often did nothing.
+        // With an anchor (output px), the image point under it stays put, so zoom follows the cursor.
+        function setZoom(imageData, zoom, anchor) {
             const limits = ZOOM_LIMITS[imageData.mode];
-            currentFrame(imageData).zoom = Math.round(clampNumber(zoom, limits.min, limits.max, 100));
+            const frame = currentFrame(imageData);
+            const before = getLayout(imageData);
+            frame.zoom = clampNumber(zoom, limits.min, limits.max, 100);
+
+            if (!anchor || frame.locked) {
+                return;
+            }
+
+            const after = getLayout(imageData);
+            const k = after.scale / before.scale;
+            const targetX = anchor.x - (anchor.x - before.x) * k;
+            const targetY = anchor.y - (anchor.y - before.y) * k;
+
+            frame.x = after.movableX ? clampNumber(targetX / after.slackX, 0, 1, 0.5) : 0.5;
+            frame.y = after.movableY ? clampNumber(targetY / after.slackY, 0, 1, 0.5) : 0.5;
+        }
+
+        // Wheel zoom. A mouse-wheel notch (~100px, or any line/page-mode event) is exactly one step:
+        // 5%, or 1% with Alt/Option or Shift held for fine-tuning. Trackpad pinches arrive as ctrl+wheel
+        // with small pixel deltas and stay continuous.
+        // The step is user-adjustable from any card (shared by all cards, remembered per browser).
+        // Alt/Option or Shift gives a fifth of it for fine-tuning.
+        const ZOOM_STEPS = [1, 2, 5, 10, 20];
+        let zoomStep = 5;
+        try {
+            const saved = Number(localStorage.getItem('crop-zoom-step'));
+            if (ZOOM_STEPS.includes(saved)) zoomStep = saved;
+        } catch {}
+
+        function setZoomStep(value) {
+            zoomStep = value;
+            document.querySelectorAll('[data-role="zoom-step"]').forEach(select => { select.value = String(value); });
+            try { localStorage.setItem('crop-zoom-step', String(value)); } catch {}
+        }
+
+        function stepFraction(fine) {
+            return zoomStep / 100 / (fine ? 5 : 1);
+        }
+
+        function wheelZoomFactor(event) {
+            const raw = event.deltaY || (event.shiftKey ? event.deltaX : 0);
+            const delta = raw * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 400 : 1);
+
+            if (!delta) return 1;
+
+            if (event.ctrlKey && event.deltaMode === 0 && Math.abs(delta) < 50) {
+                return Math.exp(-delta * 0.01);
+            }
+
+            const notches = event.deltaMode !== 0 || Math.abs(delta) >= 50 ? Math.sign(delta) : delta / 100;
+            return Math.pow(1 + stepFraction(event.altKey || event.shiftKey), -notches);
+        }
+
+        function displayZoom(frame) {
+            return Math.round(frame.zoom);
         }
 
         // ---- Blurred background ----------------------------------------
@@ -1931,14 +2010,14 @@
             refs.zoomLabel.textContent = mode === 'crop' ? 'Zoom' : 'Image size';
             refs.zoomInput.min = limits.min;
             refs.zoomInput.max = limits.max;
-            refs.zoomInput.value = frame.zoom;
-            refs.zoomValue.textContent = `${frame.zoom}%`;
+            refs.zoomInput.value = displayZoom(frame);
+            refs.zoomValue.textContent = `${displayZoom(frame)}%`;
             refs.zoomReset.textContent = mode === 'crop' ? 'Fill' : 'Fit';
             refs.zoomReset.title = mode === 'crop'
                 ? 'Back to 100%: the smallest zoom that still fills the frame'
                 : 'Back to 100%: the whole image visible, as large as possible';
-            refs.zoomReset.disabled = frame.zoom === 100;
-            refs.zoomReset.style.visibility = frame.zoom === 100 ? 'hidden' : 'visible';
+            refs.zoomReset.disabled = displayZoom(frame) === 100;
+            refs.zoomReset.style.visibility = displayZoom(frame) === 100 ? 'hidden' : 'visible';
 
             const locked = isLocked(imageData);
             refs.lockButton.hidden = mode !== 'blur';
@@ -1978,10 +2057,10 @@
 
         function getFramingHint(imageData, layout) {
             const frame = currentFrame(imageData);
-            const zoomTip = 'Pinch or <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+scroll on the preview to zoom · double-click to centre.';
+            const zoomTip = 'Pinch or <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+scroll on the preview to zoom (add <kbd>Alt</kbd>/<kbd>⌥</kbd> for ⅕ steps) · double-click to centre.';
 
             if (imageData.mode === 'crop') {
-                if (frame.zoom === 100) {
+                if (displayZoom(frame) === 100) {
                     if (layout.movableX) return `<strong>Wider than 16:9.</strong> Drag sideways to choose which part is kept. ${zoomTip}`;
                     if (layout.movableY) return `<strong>Taller than 16:9.</strong> Drag up or down to choose which part is kept. ${zoomTip}`;
                     return `<strong>Already 16:9</strong>, so nothing is cut off. Zoom in to crop tighter.`;
@@ -2113,6 +2192,9 @@
                             <div class="zoom-row">
                                 <input type="range" class="slider-input" data-role="zoom" step="1" aria-label="Zoom">
                                 <span class="value-chip" data-role="zoom-value"></span>
+                                <select class="step-select" data-role="zoom-step" aria-label="Zoom step per scroll-wheel notch or plus/minus key" title="How much each scroll-wheel notch or +/− key zooms. Hold Alt/Option for a fifth of it.">
+                                    ${ZOOM_STEPS.map(step => `<option value="${step}"${step === zoomStep ? ' selected' : ''}>Step ${step}%</option>`).join('')}
+                                </select>
                                 <button type="button" class="mini-btn" data-action="zoom-reset">Fit</button>
                             </div>
                         </div>
@@ -2211,6 +2293,10 @@
                 scheduleRender(imageData);
             });
 
+            section.querySelector('[data-role="zoom-step"]').addEventListener('change', event => {
+                setZoomStep(Number(event.target.value));
+            });
+
             refs.zoomInput.addEventListener('dblclick', () => {
                 setZoom(imageData, 100);
                 scheduleRender(imageData);
@@ -2228,10 +2314,22 @@
                 });
             });
 
-            // Drag on the output moves the image with the pointer.
+            // Client coordinates -> 1920x1080 output units.
+            const outputPoint = (clientX, clientY) => {
+                const rect = outCanvas.getBoundingClientRect();
+                return {
+                    x: (clientX - rect.left) * TARGET_WIDTH / (rect.width || 1),
+                    y: (clientY - rect.top) * TARGET_HEIGHT / (rect.height || 1)
+                };
+            };
+
+            // Drag on the output moves the image with the pointer; two fingers pinch-zoom.
             attachDrag(outCanvas, (dx, dy) => {
                 const k = TARGET_WIDTH / (outCanvas.getBoundingClientRect().width || 1);
                 nudgeLayer(imageData, dx * k, dy * k);
+                scheduleRender(imageData);
+            }, (factor, clientX, clientY) => {
+                setZoom(imageData, currentFrame(imageData).zoom * factor, outputPoint(clientX, clientY));
                 scheduleRender(imageData);
             });
 
@@ -2252,14 +2350,33 @@
                 scheduleRender(imageData);
             });
 
+            // Safari reports trackpad pinches as gesture events rather than ctrl+wheel.
+            let gestureScale = null;
+            outCanvas.addEventListener('gesturestart', event => {
+                event.preventDefault();
+                gestureScale = 1;
+            });
+            outCanvas.addEventListener('gesturechange', event => {
+                event.preventDefault();
+                if (gestureScale === null) return;
+                setZoom(imageData, currentFrame(imageData).zoom * event.scale / gestureScale, outputPoint(event.clientX, event.clientY));
+                gestureScale = event.scale;
+                scheduleRender(imageData);
+            });
+            outCanvas.addEventListener('gestureend', event => {
+                event.preventDefault();
+                gestureScale = null;
+            });
+
             outCanvas.addEventListener('wheel', event => {
                 if (!event.ctrlKey && !event.metaKey) {
                     return;
                 }
 
                 event.preventDefault();
+                if (gestureScale !== null) return;
                 const frame = currentFrame(imageData);
-                setZoom(imageData, frame.zoom * Math.exp(-event.deltaY * 0.01));
+                setZoom(imageData, frame.zoom * wheelZoomFactor(event), outputPoint(event.clientX, event.clientY));
                 scheduleRender(imageData);
             }, { passive: false });
 
@@ -2276,9 +2393,11 @@
                     event.preventDefault();
                     nudgeLayer(imageData, ...moves[event.key]);
                 } else if (event.key === '+' || event.key === '=') {
-                    setZoom(imageData, currentFrame(imageData).zoom + 5);
+                    event.preventDefault();
+                    setZoom(imageData, currentFrame(imageData).zoom * (1 + stepFraction(event.altKey)), { x: TARGET_WIDTH / 2, y: TARGET_HEIGHT / 2 });
                 } else if (event.key === '-' || event.key === '_') {
-                    setZoom(imageData, currentFrame(imageData).zoom - 5);
+                    event.preventDefault();
+                    setZoom(imageData, currentFrame(imageData).zoom / (1 + stepFraction(event.altKey)), { x: TARGET_WIDTH / 2, y: TARGET_HEIGHT / 2 });
                 } else if (event.key === '0') {
                     setZoom(imageData, 100);
                 } else {
@@ -2289,21 +2408,61 @@
             });
         }
 
-        function attachDrag(canvas, onMove) {
+        // One pointer drags (only while the canvas is draggable); two pointers pinch-zoom via onPinch.
+        function attachDrag(canvas, onMove, onPinch) {
+            const pointers = new Map();
             let last = null;
+            let pinch = null;
+
+            const pinchInfo = () => {
+                const [a, b] = [...pointers.values()];
+                return {
+                    dist: Math.hypot(a.x - b.x, a.y - b.y) || 1,
+                    x: (a.x + b.x) / 2,
+                    y: (a.y + b.y) / 2
+                };
+            };
 
             canvas.addEventListener('pointerdown', event => {
-                if (!canvas.classList.contains('can-drag') || event.button !== 0) {
+                if (event.pointerType === 'mouse' && event.button !== 0) {
                     return;
                 }
 
-                event.preventDefault();
-                canvas.setPointerCapture(event.pointerId);
-                canvas.classList.add('dragging');
-                last = { x: event.clientX, y: event.clientY };
+                const canDrag = canvas.classList.contains('can-drag');
+                if (!canDrag && !onPinch) {
+                    return;
+                }
+
+                pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+                try { canvas.setPointerCapture(event.pointerId); } catch {}
+
+                if (onPinch && pointers.size === 2) {
+                    last = null;
+                    pinch = pinchInfo();
+                    canvas.classList.remove('dragging');
+                    return;
+                }
+
+                if (pointers.size === 1 && canDrag) {
+                    event.preventDefault();
+                    canvas.classList.add('dragging');
+                    last = { x: event.clientX, y: event.clientY };
+                }
             });
 
             canvas.addEventListener('pointermove', event => {
+                if (!pointers.has(event.pointerId)) return;
+                pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+                if (pinch) {
+                    if (pointers.size < 2) return;
+                    const next = pinchInfo();
+                    onMove(next.x - pinch.x, next.y - pinch.y);
+                    onPinch(next.dist / pinch.dist, next.x, next.y);
+                    pinch = next;
+                    return;
+                }
+
                 if (!last) return;
                 const dx = event.clientX - last.x;
                 const dy = event.clientY - last.y;
@@ -2311,9 +2470,14 @@
                 onMove(dx, dy);
             });
 
-            const end = () => {
-                last = null;
-                canvas.classList.remove('dragging');
+            // Lifting one finger ends the pinch without turning the other into a drag (avoids a jump).
+            const end = event => {
+                pointers.delete(event.pointerId);
+                if (pinch && pointers.size < 2) pinch = null;
+                if (pointers.size === 0) {
+                    last = null;
+                    canvas.classList.remove('dragging');
+                }
             };
 
             canvas.addEventListener('pointerup', end);

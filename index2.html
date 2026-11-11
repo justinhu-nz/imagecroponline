@@ -46,6 +46,18 @@
     #tt-split-tool .tt-seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--tt-control);border:1px solid var(--tt-border);border-radius:9px;padding:3px}
     #tt-split-tool .tt-seg button{border-color:transparent;background:transparent;padding:6px 8px;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:7px}
     #tt-split-tool .tt-seg button[aria-pressed="true"]{background:var(--tt-fg);color:#ffffff}
+    #tt-split-tool .tt-seg-4{grid-template-columns:repeat(4,1fr)}
+    #tt-split-tool .tt-seg-3{grid-template-columns:repeat(3,1fr)}
+    #tt-split-tool .tt-swatch-blur{background:linear-gradient(135deg,#7a4a3a,#3b5f86 55%,#22303f);filter:blur(1px)}
+    #tt-split-tool .tt-check{display:flex;gap:8px;align-items:flex-start;margin-top:10px;cursor:pointer;font-size:13px}
+    #tt-split-tool .tt-check input{margin:2px 0 0;flex:none}
+    #tt-split-tool .tt-check small{display:block;color:var(--tt-muted-fg);font-size:12px}
+    #tt-split-tool .tt-seg.tt-muted{opacity:.45}
+    #tt-split-tool .tt-slot-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    #tt-split-tool .tt-order{display:inline-flex;gap:3px}
+    #tt-split-tool .tt-mini{padding:0 7px;font-size:12px;line-height:20px;border-radius:6px}
+    #tt-split-tool .tt-mini:disabled{opacity:.35;cursor:default;transform:none}
+    #tt-split-tool .tt-slot.tt-selected .tt-file{border-style:solid;border-color:var(--tt-focus)}
     #tt-split-tool .tt-seg svg{width:16px;height:12px;flex:none}
     #tt-split-tool .tt-swatch{width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,.2);display:inline-block;flex:none}
     #tt-split-tool .tt-swatch-none{background:repeating-conic-gradient(#8a8f98 0 25%,#d6d9de 0 50%) 0 0/8px 8px}
@@ -76,7 +88,7 @@
   </style>
 
   <header class="tt-appbar">
-    <div class="tt-brand"><strong>Split Image Builder</strong><span>Two images, one frame</span></div>
+    <div class="tt-brand"><strong>Split Image Builder</strong><span>Up to four images, one frame</span></div>
     <a class="tt-switch" href="index.html"><span class="tt-switch-icon" aria-hidden="true">📐</span>16:9 Image Cropper</a>
   </header>
 
@@ -84,23 +96,29 @@
     <div class="tt-controls">
       <section class="tt-card">
         <h3>Images</h3>
-        <div class="tt-field" style="margin-top:0"><span class="tt-label" data-side-label="img1">Image 1 (left)</span>
-          <div class="tt-file" data-file="img1"><button type="button" class="tt-file-pick">Choose image…</button><span class="tt-file-name"></span><button type="button" class="tt-file-clear" title="Remove image" aria-label="Remove image">✕</button><input type="file" accept="image/*,.heic,.heif" hidden></div>
+        <div class="tt-field" style="margin-top:0"><span class="tt-label" id="tt-count-label">Number of images</span>
+          <div class="tt-seg tt-seg-3" role="group" aria-labelledby="tt-count-label">
+            <button type="button" data-count="2" aria-pressed="true">2</button>
+            <button type="button" data-count="3" aria-pressed="false">3</button>
+            <button type="button" data-count="4" aria-pressed="false">4</button>
+          </div>
         </div>
-        <div class="tt-field"><span class="tt-label" data-side-label="img2">Image 2 (right)</span>
-          <div class="tt-file" data-file="img2"><button type="button" class="tt-file-pick">Choose image…</button><span class="tt-file-name"></span><button type="button" class="tt-file-clear" title="Remove image" aria-label="Remove image">✕</button><input type="file" accept="image/*,.heic,.heif" hidden></div>
+        <div id="tt-slots"></div>
+        <div class="tt-field"><span class="tt-label" id="tt-step-label">Zoom step — per scroll-wheel notch or <kbd>+</kbd>/<kbd>−</kbd> key</span>
+          <div class="tt-seg tt-seg-4" role="group" aria-labelledby="tt-step-label">
+            <button type="button" data-step="1" aria-pressed="false">1%</button>
+            <button type="button" data-step="2" aria-pressed="false">2%</button>
+            <button type="button" data-step="5" aria-pressed="true">5%</button>
+            <button type="button" data-step="10" aria-pressed="false">10%</button>
+          </div>
         </div>
-        <button id="tt-swap" type="button">⇄ Swap images</button>
-        <p class="tt-hint">Drop or paste (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>V</kbd>) images anywhere. Drop two at once to fill both sides.</p>
+        <p class="tt-hint">Drop or paste (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>V</kbd>) images anywhere. Drop several at once to fill the slots in order (up to 4).</p>
       </section>
 
       <section class="tt-card">
         <h3>Split</h3>
-        <div class="tt-seg" role="group" aria-label="Split direction">
-          <button type="button" data-orient="v" aria-pressed="true"><svg viewBox="0 0 16 12" aria-hidden="true"><rect x=".5" y=".5" width="15" height="11" rx="1.5" fill="none" stroke="currentColor"/><path d="M8 1v10" stroke="currentColor" stroke-width="1.5"/></svg>Side by side</button>
-          <button type="button" data-orient="h" aria-pressed="false"><svg viewBox="0 0 16 12" aria-hidden="true"><rect x=".5" y=".5" width="15" height="11" rx="1.5" fill="none" stroke="currentColor"/><path d="M1 6h14" stroke="currentColor" stroke-width="1.5"/></svg>Top &amp; bottom</button>
-        </div>
-        <div class="tt-field"><label for="tt-pos">Divider position <span data-value="pos">50</span>%</label><input id="tt-pos" data-bind="pos" type="range" min="5" max="95" step="0.5" value="50"></div>
+        <div class="tt-seg" role="group" aria-label="Layout" id="tt-layouts"></div>
+        <div id="tt-dividers"></div>
         <div class="tt-field"><label for="tt-angle">Divider angle <span data-value="angle">0</span>°</label><input id="tt-angle" data-bind="angle" type="range" min="-30" max="30" step="0.5" value="0"></div>
         <div class="tt-row-2">
           <div class="tt-field"><label for="tt-line">Divider line <span data-value="lineWidth">0</span>px</label><input id="tt-line" data-bind="lineWidth" type="range" min="0" max="40" value="0"></div>
@@ -125,13 +143,15 @@
           <div class="tt-field"><label for="tt-h">Height</label><input id="tt-h" type="number" min="100" max="8000" value="1080"></div>
         </div>
         <div class="tt-field"><span class="tt-label">Background — fills anywhere an image doesn't cover</span>
-          <div class="tt-seg" role="group" aria-label="Background">
+          <div class="tt-seg tt-seg-3" role="group" aria-label="Background" id="tt-bg-seg">
             <button type="button" data-bg="black" aria-pressed="true"><span class="tt-swatch" style="background:#000"></span>Black</button>
             <button type="button" data-bg="white" aria-pressed="false"><span class="tt-swatch" style="background:#fff"></span>White</button>
             <button type="button" data-bg="custom" aria-pressed="false"><span class="tt-swatch" id="tt-bg-custom-swatch" style="background:#cc3333"></span>Colour</button>
             <button type="button" data-bg="transparent" aria-pressed="false"><span class="tt-swatch tt-swatch-none"></span>Transparent</button>
+            <button type="button" data-bg="blur" aria-pressed="false" title="Fill gaps with a blurred, slightly darkened copy of that region's image"><span class="tt-swatch tt-swatch-blur"></span>Blurred</button>
           </div>
           <input id="tt-bg-colour" type="color" value="#cc3333" aria-label="Background colour" class="tt-hidden">
+          <label class="tt-check"><input type="checkbox" id="tt-fill"><span>Always fill the frame<small>Images can't be zoomed out or moved far enough to leave a gap, so the background never shows.</small></span></label>
         </div>
       </section>
 
@@ -139,10 +159,10 @@
     </div>
 
     <div class="tt-preview">
-      <div class="tt-canvas-wrap"><canvas id="tt-canvas" width="1920" height="1080" tabindex="0" aria-label="Split image preview. Drag to crop, scroll to zoom, drag the divider to move it."></canvas></div>
+      <div class="tt-canvas-wrap"><canvas id="tt-canvas" width="1920" height="1080" tabindex="0" aria-label="Split image preview. Drag to crop, scroll to zoom, drag a divider to move it."></canvas></div>
       <div class="tt-export"><span class="tt-dims" id="tt-dims">1920 × 1080</span><input id="tt-filename" type="text" value="split-image.png" aria-label="File name" spellcheck="false"><button id="tt-download" class="tt-primary" title="Download PNG (⌘/Ctrl+S)">Download PNG</button></div>
       <p class="tt-hint tt-bg-hint" id="tt-bg-hint" hidden><span class="tt-swatch" id="tt-bg-hint-swatch"></span><span id="tt-bg-hint-text"></span></p>
-      <p class="tt-hint">Drag an image to crop it · scroll to zoom · drag the divider to move it · double-click to reset · click an image then use arrow keys to nudge (<kbd>Shift</kbd> for bigger steps).</p>
+      <p class="tt-hint">Drag an image to crop it · scroll or pinch to zoom (hold <kbd>Alt</kbd>/<kbd>⌥</kbd> for ⅕ steps) · drag a divider to move it · double-click to reset · click an image then use arrow keys to nudge (<kbd>Shift</kbd> for bigger steps).</p>
     </div>
   </section>
 
@@ -159,34 +179,115 @@
     function toast(message,tone='info'){toastEl.textContent=message;toastEl.dataset.tone=tone;toastEl.classList.add('tt-show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('tt-show'),tone==='error'?7000:2600)}
 
     // --- state ---
+    // Up to four image slots. `count` says how many the layout uses; slots past it keep their image so
+    // switching 4 -> 2 -> 4 loses nothing. Divider positions live in `splits` (percent of width for x, height for y).
+    const MAX_IMAGES=4,MIN_GAP=4;
     const freshImage=()=>({image:null,url:null,name:'',x:0,y:0,scale:100});
-    const defaultState=()=>({img1:freshImage(),img2:freshImage(),orient:'v',pos:50,angle:0,lineWidth:0,lineColour:'#ffffff',bg:'black',bgCustom:'#cc3333'});
+    const LAYOUTS={2:['v','h'],3:['v','h','big'],4:['v','h','grid']};
+    const defaultSplits=(layout,count)=>layout==='v'?{x:Array.from({length:count-1},(_,i)=>100*(i+1)/count),y:[]}
+      :layout==='h'?{x:[],y:Array.from({length:count-1},(_,i)=>100*(i+1)/count)}:{x:[50],y:[50]};
+    const defaultState=()=>({images:Array.from({length:MAX_IMAGES},freshImage),count:2,layout:'v',splits:defaultSplits('v',2),angle:0,lineWidth:0,lineColour:'#ffffff',bg:'black',bgCustom:'#cc3333',fill:false});
     let state=defaultState();
+    // `selected` is a slot index; `hover` and divider drags use divider ids like 'x0' / 'y1'
     let hover=null,selected=null,drag=null;
     const W=()=>canvas.width,H=()=>canvas.height;
     const fmt=v=>String(Math.round(v*10)/10);
+    const isDivider=mode=>typeof mode==='string';
+    const activeSlots=()=>state.images.slice(0,state.count);
     function syncControls(keys){keys.forEach(k=>{$$(`[data-bind="${k}"]`).forEach(el=>el.value=state[k]);$$(`[data-value="${k}"]`).forEach(el=>el.textContent=fmt(state[k]))})}
 
-    // --- divider geometry ---
-    // Vertical split: divider x as a function of y. Horizontal split: divider y as a function of x.
-    // `side(px,py)` is the signed distance past the divider; positive means image 2.
-    const tanA=()=>Math.tan(state.angle*Math.PI/180);
-    const divX=py=>state.pos/100*W()+tanA()*(H()/2-py);
-    const divY=px=>state.pos/100*H()-tanA()*(W()/2-px);
-    const side=(px,py)=>state.orient==='v'?px-divX(py):py-divY(px);
-    function dividerEnds(){return state.orient==='v'?[[divX(0),0],[divX(H()),H()]]:[[0,divY(0)],[W(),divY(W())]]}
-    function region2(){const [[ax,ay],[bx,by]]=dividerEnds();return state.orient==='v'?[[ax,ay],[W(),0],[W(),H()],[bx,by]]:[[ax,ay],[bx,by],[W(),H()],[0,H()]]}
-    function regionCentre(key){const [[ax,ay],[bx,by]]=dividerEnds(),mx=(ax+bx)/2,my=(ay+by)/2;if(state.orient==='v')return key==='img1'?[mx/2,H()/2]:[(mx+W())/2,H()/2];return key==='img1'?[W()/2,my/2]:[W()/2,(my+H())/2]}
+    // --- layout geometry ---
+    // Every divider is a straight line (rotated by the shared angle). Each image's region is the frame clipped by
+    // the half-planes on its side of the relevant dividers, so all layouts share the same drawing and hit-testing.
+    //   v: columns, h: rows, grid: 2x2 (4 images), big: one large image left + two stacked right (3 images)
+    function layoutSpec(){
+      const n=state.count,L=state.layout;
+      if(L==='v'||L==='h'){
+        const a=L==='v'?'x':'y',dividers=Array.from({length:n-1},(_,i)=>({id:a+i,axis:a,idx:i,scope:[]}));
+        const regions=Array.from({length:n},(_,i)=>[i>0&&{id:a+(i-1),sign:1},i<n-1&&{id:a+i,sign:-1}].filter(Boolean));
+        return {dividers,regions};
+      }
+      if(L==='grid')return {dividers:[{id:'x0',axis:'x',idx:0,scope:[]},{id:'y0',axis:'y',idx:0,scope:[]}],
+        regions:[[{id:'x0',sign:-1},{id:'y0',sign:-1}],[{id:'x0',sign:1},{id:'y0',sign:-1}],[{id:'x0',sign:-1},{id:'y0',sign:1}],[{id:'x0',sign:1},{id:'y0',sign:1}]]};
+      return {dividers:[{id:'x0',axis:'x',idx:0,scope:[]},{id:'y0',axis:'y',idx:0,scope:[{id:'x0',sign:1}]}],
+        regions:[[{id:'x0',sign:-1}],[{id:'x0',sign:1},{id:'y0',sign:-1}],[{id:'x0',sign:1},{id:'y0',sign:1}]]};
+    }
+    // x dividers: x = pos·W at mid-height, tilted by the angle. y dividers: y = pos·H at mid-width. n points to the + side.
+    function dividerLine(axis,pos){
+      const a=state.angle*Math.PI/180,c=Math.cos(a),s=Math.sin(a);
+      return axis==='x'?{p:[pos/100*W(),H()/2],n:[c,s],d:[-s,c]}:{p:[W()/2,pos/100*H()],n:[-s,c],d:[c,s]};
+    }
+    function geometry(){const spec=layoutSpec(),lines={};spec.dividers.forEach(d=>lines[d.id]=dividerLine(d.axis,state.splits[d.axis][d.idx]));return {spec,lines}}
+    const halfPlane=(g,h,off=0)=>q=>{const l=g.lines[h.id];return h.sign*((q[0]-l.p[0])*l.n[0]+(q[1]-l.p[1])*l.n[1])+off};
+    const frameRect=()=>[[0,0],[W(),0],[W(),H()],[0,H()]];
+    function clipPolygon(poly,f){
+      const out=[];
+      for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],fa=f(a),fb=f(b);if(fa>=0)out.push(a);if((fa>=0)!==(fb>=0)){const t=fa/(fa-fb);out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t])}}
+      return out;
+    }
+    // `off` grows the region outward by that many pixels (used for drawing, so neighbours overlap instead of leaving a seam)
+    function regionPolygon(i,off=0,g=geometry()){return (g.spec.regions[i]||[]).reduce((poly,h)=>clipPolygon(poly,halfPlane(g,h,off)),frameRect())}
+    function regionBox(i,g){const pts=regionPolygon(i,0,g);if(!pts.length)return {x0:0,x1:W(),y0:0,y1:H()};const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);return {x0:Math.min(...xs),x1:Math.max(...xs),y0:Math.min(...ys),y1:Math.max(...ys)}}
+    function regionCentre(i,g){const pts=regionPolygon(i,0,g);if(!pts.length)return [W()/2,H()/2];return [pts.reduce((s,p)=>s+p[0],0)/pts.length,pts.reduce((s,p)=>s+p[1],0)/pts.length]}
+    function slotAt(px,py,g=geometry()){const q=[px,py];for(let i=0;i<state.count;i++)if(g.spec.regions[i].every(h=>halfPlane(g,h)(q)>=0))return i;return 0}
+    // visible piece of a divider: its line clipped to the frame and to its scope (e.g. the right column in "1 + 2")
+    function dividerSegment(d,g){
+      const l=g.lines[d.id],L=W()+H(),a=[l.p[0]-l.d[0]*L,l.p[1]-l.d[1]*L],b=[l.p[0]+l.d[0]*L,l.p[1]+l.d[1]*L];
+      const fs=[q=>q[0],q=>W()-q[0],q=>q[1],q=>H()-q[1],...d.scope.map(h=>halfPlane(g,h))];
+      let t0=0,t1=1;
+      for(const f of fs){const fa=f(a),fb=f(b);if(fa<0&&fb<0)return null;if(fa<0)t0=Math.max(t0,fa/(fa-fb));else if(fb<0)t1=Math.min(t1,fa/(fa-fb))}
+      if(t0>=t1)return null;
+      return [[a[0]+(b[0]-a[0])*t0,a[1]+(b[1]-a[1])*t0],[a[0]+(b[0]-a[0])*t1,a[1]+(b[1]-a[1])*t1]];
+    }
+    function distToSegment([px,py],[[ax,ay],[bx,by]]){const dx=bx-ax,dy=by-ay,t=clamp(((px-ax)*dx+(py-ay)*dy)/(dx*dx+dy*dy||1),0,1);return Math.hypot(px-ax-dx*t,py-ay-dy*t)}
+    function dividerLimits(id){
+      const axis=id[0],idx=+id.slice(1),arr=state.splits[axis];
+      if(state.layout==='grid'||state.layout==='big')return [5,95];
+      return [idx>0?arr[idx-1]+MIN_GAP:3,idx<arr.length-1?arr[idx+1]-MIN_GAP:97];
+    }
+    function setDivider(id,value){const [lo,hi]=dividerLimits(id);state.splits[id[0]][+id.slice(1)]=clamp(value,lo,hi)}
 
     // --- drawing ---
-    function coverRect(img,w,h,c){const s=Math.max(w/img.naturalWidth,h/img.naturalHeight)*c.scale/100;const dw=img.naturalWidth*s,dh=img.naturalHeight*s;const cx=(c.x+100)/200*w,cy=(c.y+100)/200*h;return {x:cx-dw/2,y:cy-dh/2,w:dw,h:dh}}
-    const bgColour=()=>({black:'#000000',white:'#ffffff',custom:state.bgCustom,transparent:null})[state.bg];
-    const bgName=()=>({black:'black',white:'white',custom:state.bgCustom,transparent:'transparent'})[state.bg];
+    // Framing is relative to each image's own region (its bounding box): at 100% the image just covers the region,
+    // centred; x/y are offsets in percent of half the region's width/height. So images always start nicely framed in
+    // their own cell, and resizing a region (moving a divider, changing layout or output size) keeps them framed.
+    function regionFrame(i,g){const b=regionBox(i,g),w=Math.max(1,b.x1-b.x0),h=Math.max(1,b.y1-b.y0);return {...b,w,h,cx:b.x0+w/2,cy:b.y0+h/2}}
+    function coverRect(i,g){
+      const t=state.images[i],img=t.image,f=regionFrame(i,g);
+      const s=Math.max(f.w/img.naturalWidth,f.h/img.naturalHeight)*t.scale/100,dw=img.naturalWidth*s,dh=img.naturalHeight*s;
+      const cx=f.cx+t.x/200*f.w,cy=f.cy+t.y/200*f.h;return {x:cx-dw/2,y:cy-dh/2,w:dw,h:dh,f};
+    }
+    function setCentre(i,cx,cy,f){const t=state.images[i];t.x=(cx-f.cx)/f.w*200;t.y=(cy-f.cy)/f.h*200}
+    // 'blur' falls back to black only when no slot has an image to blur
+    const bgColour=()=>({black:'#000000',white:'#ffffff',custom:state.bgCustom,transparent:null,blur:'#000000'})[state.bg];
+    const bgName=()=>({black:'black',white:'white',custom:state.bgCustom,transparent:'transparent',blur:'a blurred copy of the image'})[state.bg];
+
+    // --- blurred background ---
+    // Built on a small canvas with a box blur (works in every browser, no ctx.filter), cached per image and frame
+    // shape, then stretched over the frame. Each region blurs its own image; an empty one borrows another slot's.
+    const blurCache=new WeakMap();
+    function boxBlur(d,w,h,r){
+      const tmp=new Float32Array(d.length),src=Float32Array.from(d);
+      const pass=(a,b,horizontal)=>{const len=horizontal?w:h,lines=horizontal?h:w;
+        for(let line=0;line<lines;line++)for(let c=0;c<3;c++){let sum=0;const at=i=>{i=i<0?0:i>=len?len-1:i;return (horizontal?line*w+i:i*w+line)*4+c};
+          for(let i=-r;i<=r;i++)sum+=a[at(i)];
+          for(let i=0;i<len;i++){b[at(i)]=sum/(2*r+1);sum+=a[at(i+r+1)]-a[at(i-r)]}}};
+      for(let n=0;n<3;n++){pass(src,tmp,true);pass(tmp,src,false)}
+      for(let i=0;i<d.length;i+=4){d[i]=src[i]*.82;d[i+1]=src[i+1]*.82;d[i+2]=src[i+2]*.82;d[i+3]=255}
+    }
+    function blurredCanvas(img){
+      const sw=160,sh=clamp(Math.round(sw*H()/W()),20,640),key=`${sw}x${sh}`,hit=blurCache.get(img);if(hit&&hit.key===key)return hit.canvas;
+      const c=document.createElement('canvas');c.width=sw;c.height=sh;const x=c.getContext('2d',{willReadFrequently:true});
+      const s=Math.max(sw/img.naturalWidth,sh/img.naturalHeight)*1.08,dw=img.naturalWidth*s,dh=img.naturalHeight*s;
+      x.imageSmoothingQuality='high';x.drawImage(img,(sw-dw)/2,(sh-dh)/2,dw,dh);
+      const px=x.getImageData(0,0,sw,sh);boxBlur(px.data,sw,sh,Math.max(3,Math.round(sw/28)));x.putImageData(px,0,0);
+      blurCache.set(img,{key,canvas:c});return c;
+    }
+    const blurSource=i=>state.images[i].image||activeSlots().find(t=>t.image)?.image||null;
     const isLight=hex=>{const n=parseInt(hex.slice(1),16);return ((n>>16&255)*299+(n>>8&255)*587+(n&255)*114)/1000>150};
-    function region(key){const [a,b]=dividerEnds();if(key==='img2')return region2();return state.orient==='v'?[[0,0],a,b,[0,H()]]:[[0,0],[W(),0],b,a]}
     function tracePath(points){ctx.beginPath();points.forEach(([px,py],i)=>i?ctx.lineTo(px,py):ctx.moveTo(px,py));ctx.closePath()}
-    // does the image fully cover its side of the divider? (checks the side's bounding box)
-    function covers(key){const t=state[key];if(!t.image)return false;const pts=region(key),xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);const r=coverRect(t.image,W(),H(),t);return r.x<=Math.min(...xs)+.5&&r.y<=Math.min(...ys)+.5&&r.x+r.w>=Math.max(...xs)-.5&&r.y+r.h>=Math.max(...ys)-.5}
+    // does the image fully cover its region? (checks the region's bounding box)
+    function covers(i,g){if(!state.images[i].image)return false;const r=coverRect(i,g),b=r.f;return r.x<=b.x0+.5&&r.y<=b.y0+.5&&r.x+r.w>=b.x1-.5&&r.y+r.h>=b.y1-.5}
     // preview-only fill for uncovered areas: the export background with diagonal hatching over it, or a checkerboard for transparent
     let patternCache={key:'',pattern:null};
     function emptyPattern(k){
@@ -196,41 +297,61 @@
       else{x.fillStyle=bg;x.fillRect(0,0,size,size);x.strokeStyle=isLight(bg)?'rgba(0,0,0,.28)':'rgba(255,255,255,.28)';x.lineWidth=Math.max(1,1.5*k);x.beginPath();for(const o of [-size,0,size]){x.moveTo(o,size);x.lineTo(o+size,0)}x.stroke()}
       patternCache={key,pattern:ctx.createPattern(c,'repeat')};return patternCache.pattern;
     }
-    function drawImageSlot(key,exporting){
-      const w=W(),h=H(),t=state[key],k=w/(canvas.getBoundingClientRect().width||w),bg=bgColour();ctx.save();
-      // image 1 fills the whole frame underneath; only image 2 is clipped, so the divider never shows an anti-aliased seam
-      if(key==='img2'){tracePath(region(key));ctx.clip()}
-      if(exporting){if(bg){ctx.fillStyle=bg;ctx.fillRect(0,0,w,h)}}
+    const viewScale=()=>W()/(canvas.getBoundingClientRect().width||W());
+    function drawImageSlot(i,exporting,g){
+      const w=W(),h=H(),t=state.images[i],k=viewScale(),bg=bgColour();ctx.save();
+      // image 1 fills the whole frame underneath; the others are clipped to a region grown by a fraction of a pixel,
+      // so neighbouring regions overlap slightly and the dividers never show an anti-aliased seam
+      if(i>0){tracePath(regionPolygon(i,.75,g));ctx.clip()}
+      const blurSrc=state.bg==='blur'&&blurSource(i);
+      if(blurSrc){ctx.imageSmoothingQuality='high';ctx.drawImage(blurredCanvas(blurSrc),0,0,w,h)}
+      else if(exporting){if(bg){ctx.fillStyle=bg;ctx.fillRect(0,0,w,h)}}
       else{ctx.fillStyle=emptyPattern(k);ctx.fillRect(0,0,w,h)}
       if(t.image){
-        const r=coverRect(t.image,w,h,t);ctx.drawImage(t.image,r.x,r.y,r.w,r.h);
-        // dashed edge wherever the image stops short of its side
-        if(!exporting&&!covers(key)){ctx.lineWidth=2*k;ctx.setLineDash([7*k,5*k]);ctx.strokeStyle='rgba(0,0,0,.7)';ctx.strokeRect(r.x,r.y,r.w,r.h);ctx.lineDashOffset=6*k;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.strokeRect(r.x,r.y,r.w,r.h)}
+        const r=coverRect(i,g);ctx.drawImage(t.image,r.x,r.y,r.w,r.h);
+        // dashed edge wherever the image stops short of its region
+        if(!exporting&&!covers(i,g)&&!state.fill){ctx.lineWidth=2*k;ctx.setLineDash([7*k,5*k]);ctx.strokeStyle='rgba(0,0,0,.7)';ctx.strokeRect(r.x,r.y,r.w,r.h);ctx.lineDashOffset=6*k;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.strokeRect(r.x,r.y,r.w,r.h)}
       }
       else if(!exporting){
-        const [lx,ly]=regionCentre(key),m=Math.min(w,h),big=Math.max(16*k,m/24),small=Math.max(12*k,m/40);
-        const title=key==='img1'?'Image 1':'Image 2',sub='drop, paste or choose';
-        ctx.font=`500 ${small}px system-ui,sans-serif`;const bw=Math.max(ctx.measureText(sub).width,big*3.4)+big*1.4,bh=big+small+big*1.1;
+        // placeholder label, shrunk to fit narrow regions
+        const [lx,ly]=regionCentre(i,g),b=regionBox(i,g),m=Math.min(w,h),title=`Image ${i+1}`,sub='drop, paste or choose';
+        let big=Math.max(16*k,m/24),small=Math.max(12*k,m/40);
+        ctx.font=`500 ${small}px system-ui,sans-serif`;let bw=Math.max(ctx.measureText(sub).width,big*3.4)+big*1.4,bh=big+small+big*1.1;
+        const fit=Math.min(1,(b.x1-b.x0)*.9/bw,(b.y1-b.y0)*.9/bh);big*=fit;small*=fit;bw*=fit;bh*=fit;
         ctx.fillStyle='rgba(17,19,24,.82)';ctx.beginPath();ctx.roundRect?ctx.roundRect(lx-bw/2,ly-bh/2,bw,bh,big*.4):ctx.rect(lx-bw/2,ly-bh/2,bw,bh);ctx.fill();
         ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`600 ${big}px system-ui,sans-serif`;ctx.fillText(title,lx,ly-small*.6);
         ctx.fillStyle='rgba(255,255,255,.7)';ctx.font=`400 ${small}px system-ui,sans-serif`;ctx.fillText(sub,lx,ly+big*.6);
       }
       ctx.restore();
     }
-    function updateBgHint(){
-      const uncovered=['img1','img2'].filter(key=>!covers(key));
-      $('#tt-bg-hint').hidden=!uncovered.length;if(!uncovered.length)return;
-      const sw=$('#tt-bg-hint-swatch');sw.className='tt-swatch'+(state.bg==='transparent'?' tt-swatch-none':'');sw.style.background=state.bg==='transparent'?'':bgColour();
-      $('#tt-bg-hint-text').textContent=`${state.bg==='transparent'?'Checkered':'Hatched'} areas aren't covered by an image and will export as ${bgName()}. Zoom in or drag the image to fill them, or change the background under Output.`;
+    function updateBgHint(g){
+      const uncovered=[...Array(state.count).keys()].filter(i=>!covers(i,g));
+      $('#tt-bg-hint').hidden=!uncovered.length||state.fill;if(!uncovered.length||state.fill)return;
+      const sw=$('#tt-bg-hint-swatch'),blur=state.bg==='blur'&&uncovered.some(blurSource);
+      sw.className='tt-swatch'+(state.bg==='transparent'?' tt-swatch-none':blur?' tt-swatch-blur':'');sw.style.background=state.bg==='transparent'||blur?'':bgColour();
+      $('#tt-bg-hint-text').textContent=blur
+        ?'Gaps around an image are filled with a blurred copy of it, as shown. Tick "Always fill the frame" under Output to avoid gaps altogether.'
+        :`${state.bg==='transparent'?'Checkered':'Hatched'} areas aren't covered by an image and will export as ${bgName()}. Zoom in or drag the image to fill them, change the background, or tick "Always fill the frame" under Output.`;
     }
+    // "Always fill the frame": at least cover size for its region (100%), positioned so the image spans the whole region
+    function fitToRegion(i,g){
+      const t=state.images[i];if(!t.image)return;t.scale=Math.max(t.scale,100);
+      const r=coverRect(i,g),b=r.f;
+      setCentre(i,clamp(r.x+r.w/2,b.x1-r.w/2,b.x0+r.w/2),clamp(r.y+r.h/2,b.y1-r.h/2,b.y0+r.h/2),b);
+    }
+    function strokeSegment(seg){ctx.beginPath();ctx.moveTo(...seg[0]);ctx.lineTo(...seg[1]);ctx.stroke()}
     function render(exporting=false){
-      ctx.clearRect(0,0,W(),H());drawImageSlot('img1',exporting);drawImageSlot('img2',exporting);
-      const [[ax,ay],[bx,by]]=dividerEnds();
-      if(state.lineWidth>0){ctx.save();ctx.strokeStyle=state.lineColour;ctx.lineWidth=state.lineWidth;ctx.lineCap='square';ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();ctx.restore()}
+      const g=geometry();
+      if(state.fill)for(let i=0;i<state.count;i++)fitToRegion(i,g);
+      ctx.clearRect(0,0,W(),H());
+      for(let i=0;i<state.count;i++)drawImageSlot(i,exporting,g);
+      const segments=g.spec.dividers.map(d=>({d,seg:dividerSegment(d,g)})).filter(s=>s.seg);
+      if(state.lineWidth>0){ctx.save();ctx.strokeStyle=state.lineColour;ctx.lineWidth=state.lineWidth;ctx.lineCap='square';segments.forEach(s=>strokeSegment(s.seg));ctx.restore()}
       if(exporting)return;
-      updateBgHint();
-      const focus=drag?drag.mode:hover;
-      if(focus==='divider'){const k=W()/canvas.getBoundingClientRect().width||1;ctx.save();ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=3*k;ctx.setLineDash([8*k,6*k]);ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();ctx.restore()}
+      updateBgHint(g);updateSlotHighlight();
+      const focus=drag&&isDivider(drag.mode)?drag.mode:hover;
+      const active=segments.find(s=>s.d.id===focus);
+      if(active){const k=viewScale();ctx.save();ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=3*k;ctx.setLineDash([8*k,6*k]);strokeSegment(active.seg);ctx.restore()}
     }
 
     // --- image loading ---
@@ -257,29 +378,111 @@
     }
     // a slow HEIC conversion must not overwrite an image chosen after it
     const pendingLoads={};
-    async function loadInto(key,file){
+    async function loadInto(i,file){
       if(!isImageFile(file)){toast('That file isn\'t an image. Use a JPG, PNG, WebP or HEIC.','error');return}
-      const token=pendingLoads[key]={};
+      const token=pendingLoads[i]={};
       let result;
-      try{result=await decodeImageFile(file)}catch(error){if(pendingLoads[key]===token)toast(loadErrorMessage(error,file),'error');return}
-      if(pendingLoads[key]!==token){URL.revokeObjectURL(result.url);return}
+      try{result=await decodeImageFile(file)}catch(error){if(pendingLoads[i]===token)toast(loadErrorMessage(error,file),'error');return}
+      if(pendingLoads[i]!==token){URL.revokeObjectURL(result.url);return}
       const {img,url}=result;
-      const t=state[key];if(t.url)URL.revokeObjectURL(t.url);Object.assign(t,{image:img,url,name:file.name||'Pasted image'});resetFraming(t);updateFileLabels();render();toast(`Loaded ${t.name}`);
+      const t=state.images[i];if(t.url)URL.revokeObjectURL(t.url);Object.assign(t,{image:img,url,name:file.name||'Pasted image'});resetFraming(t);updateFileLabels();render();toast(`Loaded ${t.name}`);
     }
-    function clearSlot(key){const t=state[key];if(t.url)URL.revokeObjectURL(t.url);state[key]=freshImage();updateFileLabels();render()}
+    function clearSlot(i){const t=state.images[i];if(t.url)URL.revokeObjectURL(t.url);delete pendingLoads[i];state.images[i]=freshImage();updateFileLabels();render()}
+    function moveSlot(i,dir){
+      const j=i+dir;if(j<0||j>=state.count)return;
+      [state.images[i],state.images[j]]=[state.images[j],state.images[i]];
+      delete pendingLoads[i];delete pendingLoads[j];
+      if(selected===i)selected=j;else if(selected===j)selected=i;
+      updateFileLabels();render();
+    }
+
+    // --- image slots (rebuilt when the count changes) ---
+    const SLOT_NAMES={
+      v:{2:['left','right'],3:['left','middle','right'],4:['left','centre-left','centre-right','right']},
+      h:{2:['top','bottom'],3:['top','middle','bottom'],4:['top','upper middle','lower middle','bottom']},
+      grid:{4:['top left','top right','bottom left','bottom right']},
+      big:{3:['large, left','top right','bottom right']}
+    };
+    const slotLabel=i=>`Image ${i+1} (${SLOT_NAMES[state.layout][state.count][i]})`;
+    function buildSlots(){
+      $('#tt-slots').innerHTML=Array.from({length:state.count},(_,i)=>`
+        <div class="tt-field tt-slot" data-slot="${i}"${i===0?' style="margin-top:0"':''}>
+          <div class="tt-slot-head"><span class="tt-label" data-slot-label></span>
+            <span class="tt-order"><button type="button" class="tt-mini" data-move="-1" title="Move earlier" aria-label="Move image ${i+1} earlier"${i===0?' disabled':''}>↑</button><button type="button" class="tt-mini" data-move="1" title="Move later" aria-label="Move image ${i+1} later"${i===state.count-1?' disabled':''}>↓</button></span></div>
+          <div class="tt-file"><button type="button" class="tt-file-pick">Choose image…</button><span class="tt-file-name"></span><button type="button" class="tt-file-clear" title="Remove image" aria-label="Remove image ${i+1}">✕</button><input type="file" accept="image/*,.heic,.heif" hidden></div>
+        </div>`).join('');
+      $$('[data-slot]').forEach(el=>{
+        const i=+el.dataset.slot,input=el.querySelector('input[type="file"]');
+        el.querySelector('.tt-file-pick').onclick=()=>input.click();
+        input.onchange=()=>{if(input.files[0])loadInto(i,input.files[0]);input.value=''};
+        el.querySelector('.tt-file-clear').onclick=()=>clearSlot(i);
+        el.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>moveSlot(i,+b.dataset.move));
+      });
+      updateFileLabels();
+    }
     function updateFileLabels(){
-      $$('[data-file]').forEach(el=>{const t=state[el.dataset.file];el.classList.toggle('tt-has-image',!!t.image);el.querySelector('.tt-file-name').textContent=t.image?t.name:'No image yet';el.querySelector('.tt-file-name').title=t.name;el.querySelector('.tt-file-clear').hidden=!t.image;el.querySelector('.tt-file-pick').textContent=t.image?'Replace…':'Choose image…'});
-      $('[data-side-label="img1"]').textContent=state.orient==='v'?'Image 1 (left)':'Image 1 (top)';
-      $('[data-side-label="img2"]').textContent=state.orient==='v'?'Image 2 (right)':'Image 2 (bottom)';
+      $$('[data-slot]').forEach(el=>{
+        const i=+el.dataset.slot,t=state.images[i],file=el.querySelector('.tt-file');
+        file.classList.toggle('tt-has-image',!!t.image);
+        el.querySelector('[data-slot-label]').textContent=slotLabel(i);
+        el.querySelector('.tt-file-name').textContent=t.image?t.name:'No image yet';el.querySelector('.tt-file-name').title=t.name;
+        el.querySelector('.tt-file-clear').hidden=!t.image;el.querySelector('.tt-file-pick').textContent=t.image?'Replace…':'Choose image…';
+      });
     }
-    $$('[data-file]').forEach(el=>{const input=el.querySelector('input[type="file"]');el.querySelector('.tt-file-pick').onclick=()=>input.click();input.onchange=()=>{if(input.files[0])loadInto(el.dataset.file,input.files[0]);input.value=''};el.querySelector('.tt-file-clear').onclick=()=>clearSlot(el.dataset.file)});
-    // where a dropped/pasted image goes when no position is given: the selected side, else the first empty side
-    const nextSlot=()=>selected==='img2'||(selected!=='img1'&&state.img1.image&&!state.img2.image)?'img2':'img1';
+    function updateSlotHighlight(){$$('[data-slot]').forEach(el=>el.classList.toggle('tt-selected',+el.dataset.slot===selected))}
+
+    // --- layout + divider controls ---
+    const LAYOUT_NAMES={v:n=>n===2?'Side by side':'Columns',h:n=>n===2?'Top & bottom':'Rows',grid:()=>'Grid',big:()=>'1 + 2'};
+    function layoutIcon(layout,n){
+      const lines=layout==='v'?Array.from({length:n-1},(_,i)=>`M${1+14*(i+1)/n} 1v10`).join('')
+        :layout==='h'?Array.from({length:n-1},(_,i)=>`M1 ${1+10*(i+1)/n}h14`).join('')
+        :layout==='grid'?'M8 1v10M1 6h14':'M8 1v10M8 6h7';
+      return `<svg viewBox="0 0 16 12" aria-hidden="true"><rect x=".5" y=".5" width="15" height="11" rx="1.5" fill="none" stroke="currentColor"/><path d="${lines}" stroke="currentColor" stroke-width="1.5"/></svg>`;
+    }
+    function dividerLabel(d){
+      if(state.layout==='grid')return d.axis==='x'?'Vertical divider':'Horizontal divider';
+      if(state.layout==='big')return d.axis==='x'?'Vertical divider':'Right-hand divider';
+      return state.count===2?'Divider position':`Divider ${d.idx+1} position`;
+    }
+    function buildLayoutControls(){
+      const options=LAYOUTS[state.count],seg=$('#tt-layouts');
+      seg.classList.toggle('tt-seg-3',options.length===3);
+      seg.innerHTML=options.map(l=>`<button type="button" data-layout="${l}" aria-pressed="${l===state.layout}">${layoutIcon(l,state.count)}${LAYOUT_NAMES[l](state.count)}</button>`).join('');
+      seg.querySelectorAll('[data-layout]').forEach(b=>b.onclick=()=>setLayout(b.dataset.layout));
+      $('#tt-dividers').innerHTML=layoutSpec().dividers.map(d=>`<div class="tt-field"><label for="tt-div-${d.id}">${dividerLabel(d)} <span data-div-value="${d.id}"></span>%</label><input id="tt-div-${d.id}" data-div="${d.id}" type="range" min="3" max="97" step="0.5" title="Double-click to reset"></div>`).join('');
+      $$('[data-div]').forEach(el=>{
+        el.addEventListener('input',()=>{setDivider(el.dataset.div,+el.value);syncDividers();render()});
+        el.addEventListener('dblclick',()=>{resetDivider(el.dataset.div);render()});
+      });
+      $$('[data-count]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.count===state.count)));
+      syncDividers();
+    }
+    function syncDividers(){layoutSpec().dividers.forEach(d=>{const v=state.splits[d.axis][d.idx],el=$(`[data-div="${d.id}"]`),out=$(`[data-div-value="${d.id}"]`);if(el)el.value=v;if(out)out.textContent=fmt(v)})}
+    function resetDivider(id){state.splits[id[0]][+id.slice(1)]=defaultSplits(state.layout,state.count)[id[0]][+id.slice(1)];syncDividers()}
+    function setLayout(layout){state.layout=layout;state.splits=defaultSplits(layout,state.count);buildLayoutControls();updateFileLabels();render()}
+    function setCount(n){
+      const hiddenFull=state.images.slice(n,state.count).filter(t=>t.image).length;
+      state.count=n;if(!LAYOUTS[n].includes(state.layout))state.layout='v';
+      state.splits=defaultSplits(state.layout,n);if(selected!==null&&selected>=n)selected=null;
+      buildSlots();buildLayoutControls();render();
+      if(hiddenFull)toast(`${hiddenFull===1?'1 image is':hiddenFull+' images are'} set aside and will come back if you add more slots again.`);
+    }
+    $$('[data-count]').forEach(b=>b.onclick=()=>setCount(+b.dataset.count));
+
+    // where a dropped/pasted image goes when no position is given: the selected slot, else the first empty one
+    const nextSlot=()=>{if(selected!==null&&selected<state.count)return selected;const empty=activeSlots().findIndex(t=>!t.image);return empty<0?0:empty};
     function routeFiles(files,point){
       files=files.filter(isImageFile);
       if(!files.length){toast('That isn\'t an image file.','error');return}
-      if(files.length>1){loadInto('img1',files[0]);loadInto('img2',files[1]);return}
-      loadInto(point?(side(point.px,point.py)>0?'img2':'img1'):nextSlot(),files[0]);
+      if(files.length>1){
+        // several at once: add slots if needed, fill empty slots in order, or slots 1..n when there aren't enough empty ones
+        if(files.length>MAX_IMAGES)toast(`Only the first ${MAX_IMAGES} images are used.`);
+        files=files.slice(0,MAX_IMAGES);if(files.length>state.count)setCount(files.length);
+        const empty=[...Array(state.count).keys()].filter(i=>!state.images[i].image);
+        const targets=empty.length>=files.length?empty:[...Array(files.length).keys()];
+        files.forEach((f,n)=>loadInto(targets[n],f));return;
+      }
+      loadInto(point?slotAt(point.px,point.py):nextSlot(),files[0]);
     }
     const hasFiles=e=>e.dataTransfer&&[...e.dataTransfer.types].includes('Files');
     let dragDepth=0;
@@ -296,63 +499,112 @@
 
     // --- controls ---
     $$('[data-bind]').forEach(el=>el.addEventListener('input',()=>{state[el.dataset.bind]=+el.value;syncControls([el.dataset.bind]);render()}));
-    $$('input[type="range"]').forEach(el=>{el.title=el.title||'Double-click to reset';el.addEventListener('dblclick',()=>{el.value=el.defaultValue;el.dispatchEvent(new Event('input',{bubbles:true}))})});
+    $$('input[type="range"][data-bind]').forEach(el=>{el.title=el.title||'Double-click to reset';el.addEventListener('dblclick',()=>{el.value=el.defaultValue;el.dispatchEvent(new Event('input',{bubbles:true}))})});
     $('#tt-line-colour').addEventListener('input',e=>{state.lineColour=e.target.value;if(!state.lineWidth){state.lineWidth=8;syncControls(['lineWidth'])}render()});
-    function setOrient(o){state.orient=o;$$('[data-orient]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.orient===o)));updateFileLabels();render()}
-    $$('[data-orient]').forEach(b=>b.onclick=()=>setOrient(b.dataset.orient));
     function setBg(mode){state.bg=mode;$$('[data-bg]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.bg===mode)));$('#tt-bg-colour').classList.toggle('tt-hidden',mode!=='custom');$('#tt-bg-colour').value=state.bgCustom;$('#tt-bg-custom-swatch').style.background=state.bgCustom;render()}
+    function setFill(on){state.fill=on;$('#tt-fill').checked=on;$('#tt-bg-seg').classList.toggle('tt-muted',on);$('#tt-bg-seg').title=on?'Not used while "Always fill the frame" is on':'';render()}
+    $('#tt-fill').addEventListener('change',e=>setFill(e.target.checked));
     $$('[data-bg]').forEach(b=>b.onclick=()=>{setBg(b.dataset.bg);if(b.dataset.bg==='custom')try{$('#tt-bg-colour').showPicker()}catch{}});
     $('#tt-bg-colour').addEventListener('input',e=>{state.bgCustom=e.target.value;$('#tt-bg-custom-swatch').style.background=state.bgCustom;render()});
-    $('#tt-swap').onclick=()=>{[state.img1,state.img2]=[state.img2,state.img1];updateFileLabels();render()};
 
     function setSize(w,h){w=clamp(Math.round(w)||1920,100,8000);h=clamp(Math.round(h)||1080,100,8000);canvas.width=w;canvas.height=h;$('#tt-dims').textContent=`${w} × ${h}`;$('#tt-w').value=w;$('#tt-h').value=h;render()}
     $('#tt-size').addEventListener('change',e=>{const v=e.target.value;$('#tt-custom-size').classList.toggle('tt-hidden',v!=='custom');if(v!=='custom'){const [w,h]=v.split('x').map(Number);setSize(w,h)}});
     ['#tt-w','#tt-h'].forEach(s=>$(s).addEventListener('change',()=>setSize(+$('#tt-w').value,+$('#tt-h').value)));
 
     $('#tt-reset').onclick=()=>{
-      if(!confirm('Start over? This clears both images and all split settings.'))return;
-      [state.img1,state.img2].forEach(t=>t.url&&URL.revokeObjectURL(t.url));
-      state=defaultState();selected=null;$('#tt-line-colour').value=state.lineColour;syncControls(['pos','angle','lineWidth']);setBg(state.bg);setOrient('v');updateFileLabels();toast('Reset');
+      if(!confirm('Start over? This clears all images and split settings.'))return;
+      state.images.forEach(t=>t.url&&URL.revokeObjectURL(t.url));Object.keys(pendingLoads).forEach(k=>delete pendingLoads[k]);
+      state=defaultState();selected=null;$('#tt-line-colour').value=state.lineColour;syncControls(['angle','lineWidth']);
+      setBg(state.bg);setFill(state.fill);buildSlots();buildLayoutControls();render();toast('Reset');
     };
 
     // --- direct manipulation ---
     function canvasPoint(e){const r=canvas.getBoundingClientRect();const k=canvas.width/r.width;return {px:(e.clientX-r.left)*k,py:(e.clientY-r.top)*k,k}}
+    // a divider id when the point is on a divider (within ~10 screen px, or the drawn line), else the slot index under it
     function targetAt(px,py,k=1){
-      const d=side(px,py),perp=d*Math.cos(state.angle*Math.PI/180);
-      if(Math.abs(perp)<=Math.max(10,state.lineWidth/2/k+4)*k)return 'divider';
-      return d>0?'img2':'img1';
+      const g=geometry(),tol=Math.max(10,state.lineWidth/2/k+4)*k;let best=null,bestDist=Infinity;
+      for(const d of g.spec.dividers){const seg=dividerSegment(d,g);if(!seg)continue;const dist=distToSegment([px,py],seg);if(dist<=tol&&dist<bestDist){best=d.id;bestDist=dist}}
+      return best??slotAt(px,py,g);
     }
-    function panBy(t,dx,dy){t.x=clamp(t.x+dx/W()*200,-100,100);t.y=clamp(t.y+dy/H()*200,-100,100)}
-    function zoomAt(t,factor,px,py){const old=t.scale,next=clamp(old*factor,25,400);if(next===old)return;const k=next/old,cx=(t.x+100)/200*W(),cy=(t.y+100)/200*H();t.scale=next;t.x=clamp((px-(px-cx)*k)/W()*200-100,-100,100);t.y=clamp((py-(py-cy)*k)/H()*200-100,-100,100)}
+    // Keep the image overlapping its region, measured in pixels so a zoomed-in image can still be panned until any of
+    // its edges reaches the region's far side. With "Always fill the frame" on, the image must cover the region instead.
+    function clampPosition(i,g=geometry()){
+      const t=state.images[i];if(!t.image){t.x=clamp(t.x,-100,100);t.y=clamp(t.y,-100,100);return}
+      if(state.fill){fitToRegion(i,g);return}
+      const r=coverRect(i,g),b=r.f,mx=Math.min(r.w,b.w)*.1,my=Math.min(r.h,b.h)*.1;
+      setCentre(i,clamp(r.x+r.w/2,b.x0+mx-r.w/2,b.x1-mx+r.w/2),clamp(r.y+r.h/2,b.y0+my-r.h/2,b.y1-my+r.h/2),b);
+    }
+    function panBy(i,dx,dy){const t=state.images[i];if(!t.image)return;const f=regionFrame(i);t.x+=dx/f.w*200;t.y+=dy/f.h*200;clampPosition(i)}
+    // zoom so the image point under (px,py) stays under it
+    function zoomAt(i,factor,px,py){
+      const t=state.images[i],old=t.scale,next=clamp(old*factor,state.fill?100:25,400);if(!t.image||next===old)return;
+      const g=geometry(),r=coverRect(i,g),k=next/old,cx=r.x+r.w/2,cy=r.y+r.h/2;
+      t.scale=next;setCentre(i,px-(px-cx)*k,py-(py-cy)*k,r.f);clampPosition(i,g);
+    }
     function moveTarget(mode,dx,dy){
-      if(mode==='divider'){state.pos=clamp(state.pos+(state.orient==='v'?dx/W():dy/H())*100,5,95);syncControls(['pos'])}
-      else panBy(state[mode],dx,dy);
+      if(isDivider(mode)){const axis=mode[0],idx=+mode.slice(1);setDivider(mode,state.splits[axis][idx]+(axis==='x'?dx/W():dy/H())*100);syncDividers()}
+      else panBy(mode,dx,dy);
     }
-    const wheelFactor=e=>Math.exp(-clamp(e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?400:1),-150,150)*0.0015);
-    const cursorFor=mode=>mode==='divider'?(state.orient==='v'?'ew-resize':'ns-resize'):drag?'grabbing':'grab';
-    canvas.addEventListener('pointerdown',e=>{if(e.button!==0)return;const {px,py,k}=canvasPoint(e);const mode=targetAt(px,py,k);drag={mode,x:e.clientX,y:e.clientY};if(mode!=='divider')selected=mode;canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});canvas.style.cursor=cursorFor(mode);render()});
+    // Wheel zoom. A mouse-wheel notch (~100px, or any line/page-mode event) is exactly one step. Smaller pixel deltas
+    // (trackpad scrolling) scale proportionally, so a single event never jumps more than one step. Trackpad pinches
+    // (ctrl+wheel with small deltas) stay continuous. The step size is user-adjustable (remembered per browser);
+    // Alt/Option or Shift gives a fifth of it.
+    const ZOOM_STEPS=[1,2,5,10];let zoomStep=5;
+    try{const saved=+localStorage.getItem('tt-split-zoom-step');if(ZOOM_STEPS.includes(saved))zoomStep=saved}catch{}
+    function setZoomStep(v){zoomStep=v;$$('[data-step]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.step===v)));try{localStorage.setItem('tt-split-zoom-step',String(v))}catch{}}
+    $$('[data-step]').forEach(b=>b.onclick=()=>setZoomStep(+b.dataset.step));setZoomStep(zoomStep);
+    const stepFraction=fine=>zoomStep/100/(fine?5:1);
+    const wheelFactor=e=>{
+      const raw=e.deltaY||(e.shiftKey?e.deltaX:0),d=raw*(e.deltaMode===1?16:e.deltaMode===2?400:1);if(!d)return 1;
+      if(e.ctrlKey&&e.deltaMode===0&&Math.abs(d)<50)return Math.exp(-d*0.01);
+      const notches=e.deltaMode!==0||Math.abs(d)>=50?Math.sign(d):d/100;
+      return Math.pow(1+stepFraction(e.altKey||e.shiftKey),-notches);
+    };
+    const cursorFor=mode=>isDivider(mode)?(mode[0]==='x'?'ew-resize':'ns-resize'):drag?'grabbing':'grab';
+    // touch pinch: two pointers on the canvas zoom (and pan) the image under their midpoint
+    const pointers=new Map();let pinch=null;
+    function pinchInfo(){const [a,b]=[...pointers.values()],r=canvas.getBoundingClientRect(),k=canvas.width/r.width;return {dist:Math.hypot(a.x-b.x,a.y-b.y)||1,px:((a.x+b.x)/2-r.left)*k,py:((a.y+b.y)/2-r.top)*k}}
+    canvas.addEventListener('pointerdown',e=>{
+      if(e.pointerType==='mouse'&&e.button!==0)return;
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});try{canvas.setPointerCapture(e.pointerId)}catch{}
+      if(pointers.size===2){const p=pinchInfo();pinch={...p,slot:slotAt(p.px,p.py)};selected=pinch.slot;drag=null;render();return}
+      if(pointers.size>2)return;
+      const {px,py,k}=canvasPoint(e);const mode=targetAt(px,py,k);drag={mode,x:e.clientX,y:e.clientY};if(!isDivider(mode))selected=mode;canvas.focus({preventScroll:true});canvas.style.cursor=cursorFor(mode);render();
+    });
     canvas.addEventListener('pointermove',e=>{
+      if(pointers.has(e.pointerId))pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pinch){if(pointers.size<2)return;const p=pinchInfo();panBy(pinch.slot,p.px-pinch.px,p.py-pinch.py);zoomAt(pinch.slot,p.dist/pinch.dist,p.px,p.py);Object.assign(pinch,p);render();return}
       const {px,py,k}=canvasPoint(e);
-      if(!drag){const mode=targetAt(px,py,k);canvas.style.cursor=cursorFor(mode);const next=mode==='divider'?mode:null;if(next!==hover){hover=next;render()}return}
+      if(!drag){const mode=targetAt(px,py,k);canvas.style.cursor=cursorFor(mode);const next=isDivider(mode)?mode:null;if(next!==hover){hover=next;render()}return}
       moveTarget(drag.mode,(e.clientX-drag.x)*k,(e.clientY-drag.y)*k);drag.x=e.clientX;drag.y=e.clientY;render();
     });
-    const endDrag=()=>{if(!drag)return;drag=null;canvas.style.cursor=cursorFor(hover);render()};
-    canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+    // lifting one finger of a pinch ends it without turning the remaining finger into a drag (avoids a jump)
+    const endPointer=e=>{pointers.delete(e.pointerId);if(pinch){if(pointers.size<2)pinch=null;if(!pointers.size)render();return}if(!drag)return;drag=null;canvas.style.cursor=cursorFor(hover);render()};
+    canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);
     canvas.addEventListener('pointerleave',()=>{if(!drag&&hover){hover=null;render()}});
-    canvas.addEventListener('wheel',e=>{e.preventDefault();const {px,py}=canvasPoint(e);zoomAt(state[side(px,py)>0?'img2':'img1'],wheelFactor(e),px,py);render()},{passive:false});
-    canvas.addEventListener('dblclick',e=>{const {px,py,k}=canvasPoint(e);const mode=targetAt(px,py,k);if(mode==='divider'){state.pos=50;state.angle=0;syncControls(['pos','angle'])}else resetFraming(state[mode]);render()});
+    // Safari reports trackpad pinches as gesture events rather than ctrl+wheel
+    let gesture=null;
+    canvas.addEventListener('gesturestart',e=>{e.preventDefault();const {px,py}=canvasPoint(e);gesture={scale:1,slot:slotAt(px,py)}});
+    canvas.addEventListener('gesturechange',e=>{e.preventDefault();if(!gesture)return;const {px,py}=canvasPoint(e);zoomAt(gesture.slot,e.scale/gesture.scale,px,py);gesture.scale=e.scale;render()});
+    canvas.addEventListener('gestureend',e=>{e.preventDefault();gesture=null});
+    canvas.addEventListener('wheel',e=>{e.preventDefault();if(gesture)return;const {px,py}=canvasPoint(e);zoomAt(slotAt(px,py),wheelFactor(e),px,py);render()},{passive:false});
+    canvas.addEventListener('dblclick',e=>{const {px,py,k}=canvasPoint(e);const mode=targetAt(px,py,k);if(isDivider(mode)){resetDivider(mode);state.angle=0;syncControls(['angle'])}else resetFraming(state.images[mode]);render()});
     canvas.addEventListener('keydown',e=>{
-      const mode=selected||'img1',step=e.shiftKey?20:2;
+      const slot=selected??0,step=e.shiftKey?20:2;
       const moves={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,-step],ArrowDown:[0,step]};
-      if(moves[e.key]){e.preventDefault();moveTarget(mode,...moves[e.key]);render()}
-      else if(e.key==='+'||e.key==='='){e.preventDefault();zoomAt(state[mode],1.03,W()/2,H()/2);render()}
-      else if(e.key==='-'||e.key==='_'){e.preventDefault();zoomAt(state[mode],1/1.03,W()/2,H()/2);render()}
+      // keyboard zoom centres on the visible middle of the selected image's region, not the middle of the whole frame
+      const zoomKey=f=>{e.preventDefault();const [cx,cy]=regionCentre(slot);zoomAt(slot,f,cx,cy);render()};
+      if(moves[e.key]){e.preventDefault();moveTarget(slot,...moves[e.key]);render()}
+      else if(e.key==='+'||e.key==='=')zoomKey(1+stepFraction(e.altKey));
+      else if(e.key==='-'||e.key==='_')zoomKey(1/(1+stepFraction(e.altKey)));
+      else if(e.key==='0'){e.preventDefault();resetFraming(state.images[slot]);render()}
     });
 
     // --- export ---
     function safeName(name,fallback){name=(name||'').trim().replace(/[\\/:*?"<>|]+/g,'-')||fallback;return /\.png$/i.test(name)?name:name+'.png'}
     function download(){
-      const missing=!state.img1.image&&!state.img2.image?'No images have been added':!state.img1.image||!state.img2.image?'One side has no image':'';
+      const empty=activeSlots().filter(t=>!t.image).length;
+      const missing=empty===state.count?'No images have been added':empty===1?'One slot has no image':empty?`${empty} slots have no image`:'';
       if(missing&&!confirm(`${missing}. Download anyway?`))return;
       const name=safeName($('#tt-filename').value,'split-image');
       render(true);toast('Preparing PNG…');
@@ -366,10 +618,10 @@
     }
     $('#tt-download').onclick=download;
     document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='s'){e.preventDefault();download()}});
-    window.addEventListener('beforeunload',e=>{if(state.img1.image||state.img2.image){e.preventDefault();e.returnValue=''}});
+    window.addEventListener('beforeunload',e=>{if(state.images.some(t=>t.image)){e.preventDefault();e.returnValue=''}});
 
     window.addEventListener('resize',()=>render());
-    syncControls(['pos','angle','lineWidth']);updateFileLabels();render();
+    syncControls(['angle','lineWidth']);buildSlots();buildLayoutControls();render();
   })();
   </script>
 </div>
