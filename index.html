@@ -1152,8 +1152,23 @@
             border-top-color: rgba(205, 212, 232, 1);
         }
 
+        .stage-controls {
+            display: grid;
+            gap: 10px 18px;
+            margin-top: 10px;
+            align-items: end;
+        }
+
+        .stage-controls-output {
+            grid-template-columns: auto minmax(200px, 1fr);
+        }
+
         @media (max-width: 900px) {
             .control-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stage-controls-output {
                 grid-template-columns: 1fr;
             }
         }
@@ -2170,43 +2185,45 @@
                         <div class="preview-stage stage-169">
                             <canvas class="orig-canvas" data-role="orig" aria-label="Original image"></canvas>
                         </div>
+                        <div class="stage-controls">
+                            <div class="field-row">
+                                <label>Position</label>
+                                <div class="position-groups">
+                                    <button type="button" class="lock-toggle" data-action="lock" hidden></button>
+                                    <div class="output-style-toggle" role="group" aria-label="Horizontal position">${snapButtons('x')}</div>
+                                    <div class="output-style-toggle" role="group" aria-label="Vertical position">${snapButtons('y')}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="preview-panel preview-panel-output">
                         <div class="preview-label">16:9 output <span class="preview-label-note" data-role="drag-note"></span></div>
                         <div class="preview-stage stage-169 stage-output">
                             <canvas class="out-canvas" data-role="out" tabindex="0" aria-label="16:9 output preview. Drag or use the arrow keys to reposition, plus and minus to zoom."></canvas>
                         </div>
+                        <div class="stage-controls stage-controls-output">
+                            <div class="field-row">
+                                <label>Output style</label>
+                                <div class="output-style-toggle" role="group" aria-label="Output style">
+                                    <button type="button" class="toggle-button" data-action="mode" data-value="crop" title="Fill the 16:9 frame, cutting off whatever doesn't fit">Crop to fill</button>
+                                    <button type="button" class="toggle-button" data-action="mode" data-value="blur" title="Keep the whole image, filling the gaps with a blurred copy">Blur background</button>
+                                </div>
+                            </div>
+                            <div class="field-row">
+                                <label data-role="zoom-label">Zoom</label>
+                                <div class="zoom-row">
+                                    <input type="range" class="slider-input" data-role="zoom" step="1" aria-label="Zoom">
+                                    <span class="value-chip" data-role="zoom-value"></span>
+                                    <select class="step-select" data-role="zoom-step" aria-label="Zoom step per scroll-wheel notch or plus/minus key" title="How much each scroll-wheel notch or +/− key zooms. Hold Alt/Option for a fifth of it.">
+                                        ${ZOOM_STEPS.map(step => `<option value="${step}"${step === zoomStep ? ' selected' : ''}>Step ${step}%</option>`).join('')}
+                                    </select>
+                                    <button type="button" class="mini-btn" data-action="zoom-reset">Fit</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="control-area">
-                    <div class="control-row">
-                        <div class="field-row">
-                            <label>Output style</label>
-                            <div class="output-style-toggle" role="group" aria-label="Output style">
-                                <button type="button" class="toggle-button" data-action="mode" data-value="crop" title="Fill the 16:9 frame, cutting off whatever doesn't fit">Crop to fill</button>
-                                <button type="button" class="toggle-button" data-action="mode" data-value="blur" title="Keep the whole image, filling the gaps with a blurred copy">Blur background</button>
-                            </div>
-                        </div>
-                        <div class="field-row">
-                            <label data-role="zoom-label">Zoom</label>
-                            <div class="zoom-row">
-                                <input type="range" class="slider-input" data-role="zoom" step="1" aria-label="Zoom">
-                                <span class="value-chip" data-role="zoom-value"></span>
-                                <select class="step-select" data-role="zoom-step" aria-label="Zoom step per scroll-wheel notch or plus/minus key" title="How much each scroll-wheel notch or +/− key zooms. Hold Alt/Option for a fifth of it.">
-                                    ${ZOOM_STEPS.map(step => `<option value="${step}"${step === zoomStep ? ' selected' : ''}>Step ${step}%</option>`).join('')}
-                                </select>
-                                <button type="button" class="mini-btn" data-action="zoom-reset">Fit</button>
-                            </div>
-                        </div>
-                        <div class="field-row">
-                            <label>Position</label>
-                            <div class="position-groups">
-                                <button type="button" class="lock-toggle" data-action="lock" hidden></button>
-                                <div class="output-style-toggle" role="group" aria-label="Horizontal position">${snapButtons('x')}</div>
-                                <div class="output-style-toggle" role="group" aria-label="Vertical position">${snapButtons('y')}</div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="framing-hint" data-role="hint"></div>
                     <div class="bg-panel" data-role="bg-panel" hidden>
                         <div class="bg-panel-head">
