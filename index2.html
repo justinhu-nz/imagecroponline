@@ -83,8 +83,96 @@
     #tt-split-tool .tt-toast.tt-show{opacity:1;transform:translate(-50%,0)}
     #tt-split-tool .tt-toast[data-tone="error"]{border-color:var(--tt-accent);background:#fdecea}
     #tt-split-tool kbd{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--tt-border);border-bottom-width:2px;border-radius:4px;padding:0 4px;color:var(--tt-fg)}
+    /* --- polish layer --- */
+    #tt-split-tool .tt-appbar{flex-wrap:wrap}
+    #tt-split-tool .tt-card>h3{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    #tt-split-tool .tt-step{display:inline-grid;place-items:center;width:19px;height:19px;border-radius:50%;background:var(--tt-fg);color:#fff;font-size:11px;font-weight:700;flex:none}
+    #tt-split-tool .tt-field>label{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+    #tt-split-tool .tt-val{color:var(--tt-fg);font-variant-numeric:tabular-nums;font-weight:600}
+    #tt-split-tool .tt-seg button{transition:background .12s,color .12s,box-shadow .12s}
+    #tt-split-tool .tt-seg button:not([aria-pressed="true"]):hover{background:var(--tt-panel-2)}
+    #tt-split-tool .tt-seg button[aria-pressed="true"]{box-shadow:0 1px 3px rgba(20,28,40,.25)}
+    #tt-split-tool .tt-seg-bg{grid-template-columns:repeat(6,1fr)}
+    #tt-split-tool .tt-seg-bg button{grid-column:span 2}
+    #tt-split-tool .tt-seg-bg button:nth-child(n+4){grid-column:span 3}
+    #tt-split-tool .tt-slot{border-radius:9px;transition:background .12s}
+    #tt-split-tool .tt-file{padding:5px 5px 5px 5px;gap:9px;cursor:default;transition:border-color .12s,background .12s,box-shadow .12s}
+    #tt-split-tool .tt-file.tt-has-image{border-style:solid}
+    #tt-split-tool .tt-slot.tt-selected .tt-file{box-shadow:0 0 0 1px var(--tt-focus)}
+    #tt-split-tool .tt-slot.tt-drop-target .tt-file{border-style:solid;border-color:var(--tt-focus);background:#eef3fd;box-shadow:0 0 0 2px var(--tt-focus)}
+    #tt-split-tool .tt-thumb{width:44px;height:32px;border-radius:5px;flex:none;padding:0;border:1px solid var(--tt-border);background:repeating-conic-gradient(#e3e6ea 0 25%,#f4f5f7 0 50%) 0 0/10px 10px;background-size:cover;background-position:center;display:grid;place-items:center;color:var(--tt-muted-fg);font-size:17px;line-height:1}
+    #tt-split-tool .tt-file.tt-has-image .tt-thumb{background-size:cover;border-color:rgba(0,0,0,.12)}
+    #tt-split-tool .tt-thumb:hover{border-color:#bfc5ce}
+    #tt-split-tool .tt-file-meta{flex:1;min-width:0;display:grid;line-height:1.25}
+    #tt-split-tool .tt-file-meta small{color:var(--tt-muted-fg);font-size:11px;font-variant-numeric:tabular-nums}
+    #tt-split-tool .tt-file-clear{background:transparent;border-color:transparent;color:var(--tt-muted-fg)}
+    #tt-split-tool .tt-file-clear:hover{color:var(--tt-accent);background:#fdecea;border-color:transparent}
+    #tt-split-tool .tt-check+.tt-check{margin-top:8px}
+    #tt-split-tool details.tt-card>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;font-weight:650;font-size:14px}
+    #tt-split-tool details.tt-card>summary::-webkit-details-marker{display:none}
+    #tt-split-tool details.tt-card>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s;color:var(--tt-muted-fg)}
+    #tt-split-tool details.tt-card[open]>summary::after{transform:rotate(225deg) translateY(-2px)}
+    #tt-split-tool details.tt-card[open]>summary{margin-bottom:6px}
+    #tt-split-tool .tt-keys{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;margin:8px 0 2px;font-size:12px;color:var(--tt-muted-fg);align-items:center}
+    #tt-split-tool .tt-keys dt{white-space:nowrap}
+    #tt-split-tool .tt-keys dd{margin:0}
+    #tt-split-tool .tt-footer{display:flex;justify-content:flex-start}
+    #tt-split-tool .tt-export{gap:8px}
+    #tt-split-tool .tt-namefield{flex:1;min-width:160px;display:flex;align-items:center;border:1px solid var(--tt-border);border-radius:8px;background:var(--tt-control);overflow:hidden}
+    #tt-split-tool .tt-namefield:focus-within{outline:2px solid var(--tt-focus);outline-offset:2px}
+    #tt-split-tool .tt-namefield .tt-dims{padding:0 10px;align-self:stretch;display:flex;align-items:center;background:var(--tt-panel-2);border-right:1px solid var(--tt-border);font-variant-numeric:tabular-nums}
+    #tt-split-tool .tt-namefield input[type="text"]{border:0;border-radius:0;min-width:0;flex:1}
+    #tt-split-tool .tt-namefield input[type="text"]:focus-visible{outline:none}
+    #tt-split-tool .tt-primary{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;box-shadow:0 2px 8px rgba(229,55,47,.28)}
+    #tt-split-tool .tt-primary svg{width:15px;height:15px}
+    #tt-split-tool .tt-tips{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:10px 0 0;padding:0}
+    #tt-split-tool .tt-tips li{font-size:12px;color:var(--tt-muted-fg);background:var(--tt-panel);border:1px solid var(--tt-border);border-radius:999px;padding:3px 10px;white-space:nowrap}
+    #tt-split-tool .tt-tips b{color:var(--tt-fg);font-weight:600}
+    #tt-split-tool .tt-bg-hint{background:#fff8e6;border:1px solid #f0dca8;border-radius:8px;padding:7px 10px;color:#6b5420;margin-top:10px}
+    #tt-split-tool .tt-sub{display:flex;justify-content:space-between;align-items:center;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--tt-border);font-size:13px;font-weight:650}
+    #tt-split-tool .tt-sub-reset{font-size:12px;padding:3px 8px}
+    #tt-split-tool .tt-slider-row{display:flex;align-items:center;gap:10px;margin-top:6px}
+    #tt-split-tool .tt-slider-row input[type="range"]{flex:1;min-width:0}
+    #tt-split-tool .tt-slider-row .tt-val{min-width:40px;text-align:right;font-size:12px}
+    #tt-split-tool #tt-dividers .tt-field>label .tt-val{font-weight:500;color:var(--tt-muted-fg)}
+    #tt-split-tool #tt-dividers .tt-field>label .tt-val b{color:var(--tt-fg);font-weight:600}
+    /* --- compact sidebar --- */
+    #tt-split-tool .tt-card{padding:9px 11px 10px}
+    #tt-split-tool .tt-card>h3{margin-bottom:7px;min-height:26px}
+    #tt-split-tool .tt-field{margin:6px 0}
+    #tt-split-tool .tt-count-label{margin-left:auto;font-size:12px;font-weight:500;color:var(--tt-muted-fg)}
+    #tt-split-tool .tt-seg-count{display:inline-grid;grid-template-columns:repeat(3,30px);padding:2px;gap:2px;font-weight:500}
+    #tt-split-tool .tt-seg-count button{padding:2px 0;font-size:12.5px}
+    #tt-split-tool #tt-slots{display:grid;gap:5px}
+    #tt-split-tool .tt-slot{margin:0}
+    #tt-split-tool .tt-file{padding:4px;gap:8px}
+    #tt-split-tool .tt-thumb{width:40px;height:30px}
+    #tt-split-tool .tt-file-meta small{font-size:11px}
+    #tt-split-tool .tt-file-meta .tt-file-name{font-size:12.5px}
+    #tt-split-tool .tt-file-pick{padding:5px 9px;font-size:12px}
+    #tt-split-tool .tt-file-clear{padding:4px 6px}
+    #tt-split-tool .tt-order{display:grid;gap:1px}
+    #tt-split-tool .tt-order .tt-mini{line-height:13px;font-size:8px;padding:0 5px}
+    #tt-split-tool .tt-card>.tt-hint{margin-top:6px;font-size:11.5px}
+    #tt-split-tool .tt-sub{margin-top:10px;padding-top:8px}
+    #tt-split-tool #tt-dividers .tt-field{margin:4px 0}
+    #tt-split-tool .tt-ctl{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;align-items:center;margin:8px 0 0}
+    #tt-split-tool .tt-ctl[hidden]{display:none}
+    #tt-split-tool .tt-ctl-body{display:flex;align-items:center;gap:10px;min-width:0}
+    #tt-split-tool .tt-ctl-body input[type="range"]{flex:1;min-width:0}
+    #tt-split-tool .tt-ctl-body .tt-val{min-width:34px;text-align:right;font-size:12px}
+    #tt-split-tool .tt-ctl-body input[type="color"]{width:34px;height:26px}
+    #tt-split-tool .tt-seg-icons{display:inline-grid;grid-template-columns:repeat(3,32px);flex:none;padding:2px;gap:2px}
+    #tt-split-tool .tt-seg-icons button{padding:5px 0}
+    #tt-split-tool .tt-ctl .tt-seg-4 button{padding:5px 4px;font-size:12px}
+    #tt-split-tool .tt-seg-bg button{padding:5px 6px}
+    #tt-split-tool .tt-check{margin-top:8px}
+    #tt-split-tool .tt-controls{gap:8px}
+    #tt-split-tool .tt-file-meta>*{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #tt-split-tool .tt-field>label.tt-check{justify-content:flex-start;align-items:center}
+    #tt-split-tool .tt-check input{margin:0}
     @media(max-width:900px){#tt-split-tool{padding:12px;box-shadow:none}#tt-split-tool .tt-layout{grid-template-columns:1fr}#tt-split-tool .tt-preview{position:static;order:-1}}
-    @media(max-width:600px){#tt-split-tool{border-radius:0}}
+    @media(max-width:600px){#tt-split-tool{border-radius:0}#tt-split-tool .tt-switch{padding:6px 10px 6px 7px;font-size:12.5px}#tt-split-tool .tt-switch-icon{width:19px;height:19px;font-size:11px}#tt-split-tool .tt-tips li{white-space:normal}#tt-split-tool .tt-namefield{flex-basis:100%}#tt-split-tool .tt-export .tt-primary{flex:1;justify-content:center}}
   </style>
 
   <header class="tt-appbar">
@@ -95,40 +183,42 @@
   <section class="tt-layout">
     <div class="tt-controls">
       <section class="tt-card">
-        <h3>Images</h3>
-        <div class="tt-field" style="margin-top:0"><span class="tt-label" id="tt-count-label">Number of images</span>
-          <div class="tt-seg tt-seg-3" role="group" aria-labelledby="tt-count-label">
+        <h3><span class="tt-step">1</span>Images
+          <span class="tt-count-label" id="tt-count-label">How many</span><span class="tt-seg tt-seg-3 tt-seg-count" role="group" aria-labelledby="tt-count-label" title="How many images to combine">
             <button type="button" data-count="2" aria-pressed="true">2</button>
             <button type="button" data-count="3" aria-pressed="false">3</button>
             <button type="button" data-count="4" aria-pressed="false">4</button>
-          </div>
-        </div>
+          </span></h3>
         <div id="tt-slots"></div>
-        <div class="tt-field"><span class="tt-label" id="tt-step-label">Zoom step — per scroll-wheel notch or <kbd>+</kbd>/<kbd>−</kbd> key</span>
-          <div class="tt-seg tt-seg-4" role="group" aria-labelledby="tt-step-label">
-            <button type="button" data-step="1" aria-pressed="false">1%</button>
-            <button type="button" data-step="2" aria-pressed="false">2%</button>
-            <button type="button" data-step="5" aria-pressed="true">5%</button>
-            <button type="button" data-step="10" aria-pressed="false">10%</button>
+        <p class="tt-hint">Drop or paste (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>V</kbd>) images onto a slot or the preview.</p>
+      </section>
+
+      <section class="tt-card">
+        <h3><span class="tt-step">2</span>Layout</h3>
+        <div class="tt-seg" role="group" aria-label="Layout" id="tt-layouts"></div>
+
+        <div class="tt-sub"><span>Where the images meet</span><button type="button" class="tt-quiet tt-sub-reset" id="tt-div-reset" title="Even out the sizes and straighten the dividers">↺ Even out</button></div>
+        <div id="tt-dividers"></div>
+
+        <div class="tt-ctl"><span class="tt-label" id="tt-tilt-label">Tilt</span>
+          <div class="tt-ctl-body"><div class="tt-seg tt-seg-3 tt-seg-icons" role="group" aria-labelledby="tt-tilt-label" id="tt-tilt-seg"></div><input id="tt-angle" data-bind="angle" type="range" min="-30" max="30" step="0.5" value="0" aria-labelledby="tt-tilt-label"><span class="tt-val"><span data-value="angle">0</span>°</span></div>
+        </div>
+
+        <div class="tt-ctl"><span class="tt-label" id="tt-line-label">Line</span>
+          <div class="tt-seg tt-seg-4" role="group" aria-labelledby="tt-line-label" id="tt-line-seg" title="Line between images">
+            <button type="button" data-line="0" aria-pressed="true">None</button>
+            <button type="button" data-line="4" aria-pressed="false">Thin</button>
+            <button type="button" data-line="12" aria-pressed="false">Medium</button>
+            <button type="button" data-line="24" aria-pressed="false">Thick</button>
           </div>
         </div>
-        <p class="tt-hint">Drop or paste (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>V</kbd>) images anywhere. Drop several at once to fill the slots in order (up to 4).</p>
-      </section>
-
-      <section class="tt-card">
-        <h3>Split</h3>
-        <div class="tt-seg" role="group" aria-label="Layout" id="tt-layouts"></div>
-        <div id="tt-dividers"></div>
-        <div class="tt-field"><label for="tt-angle">Divider angle <span data-value="angle">0</span>°</label><input id="tt-angle" data-bind="angle" type="range" min="-30" max="30" step="0.5" value="0"></div>
-        <div class="tt-row-2">
-          <div class="tt-field"><label for="tt-line">Divider line <span data-value="lineWidth">0</span>px</label><input id="tt-line" data-bind="lineWidth" type="range" min="0" max="40" value="0"></div>
-          <div class="tt-field"><label for="tt-line-colour">Line colour</label><input id="tt-line-colour" type="color" value="#ffffff"></div>
+        <div class="tt-ctl" id="tt-line-custom" hidden><span></span>
+          <div class="tt-ctl-body"><input id="tt-line" data-bind="lineWidth" type="range" min="0" max="40" value="0" aria-label="Line width"><span class="tt-val"><span data-value="lineWidth">0</span>px</span><input id="tt-line-colour" type="color" value="#ffffff" aria-label="Line colour" title="Line colour"></div>
         </div>
-        <p class="tt-hint">Double-click a slider to reset it.</p>
       </section>
 
       <section class="tt-card">
-        <h3>Output</h3>
+        <h3><span class="tt-step">3</span>Output</h3>
         <select id="tt-size" aria-label="Output size">
           <option value="1920x1080">16:9 · 1920 × 1080</option>
           <option value="2198x1239">CTV · 2198 × 1239</option>
@@ -142,8 +232,8 @@
           <div class="tt-field"><label for="tt-w">Width</label><input id="tt-w" type="number" min="100" max="8000" value="1920"></div>
           <div class="tt-field"><label for="tt-h">Height</label><input id="tt-h" type="number" min="100" max="8000" value="1080"></div>
         </div>
-        <div class="tt-field"><span class="tt-label">Background — fills anywhere an image doesn't cover</span>
-          <div class="tt-seg tt-seg-3" role="group" aria-label="Background" id="tt-bg-seg">
+        <div class="tt-field"><span class="tt-label" title="Fills anywhere an image doesn't cover">Background</span>
+          <div class="tt-seg tt-seg-bg" role="group" aria-label="Background" id="tt-bg-seg">
             <button type="button" data-bg="black" aria-pressed="true"><span class="tt-swatch" style="background:#000"></span>Black</button>
             <button type="button" data-bg="white" aria-pressed="false"><span class="tt-swatch" style="background:#fff"></span>White</button>
             <button type="button" data-bg="custom" aria-pressed="false"><span class="tt-swatch" id="tt-bg-custom-swatch" style="background:#cc3333"></span>Colour</button>
@@ -151,18 +241,44 @@
             <button type="button" data-bg="blur" aria-pressed="false" title="Fill gaps with a blurred, slightly darkened copy of that region's image"><span class="tt-swatch tt-swatch-blur"></span>Blurred</button>
           </div>
           <input id="tt-bg-colour" type="color" value="#cc3333" aria-label="Background colour" class="tt-hidden">
-          <label class="tt-check"><input type="checkbox" id="tt-fill"><span>Always fill the frame<small>Images can't be zoomed out or moved far enough to leave a gap, so the background never shows.</small></span></label>
+          <label class="tt-check" title="Images can't be zoomed out or moved far enough to leave a gap, so the background never shows."><input type="checkbox" id="tt-fill"><span>Always fill the frame <small style="display:inline">(no gaps)</small></span></label>
         </div>
       </section>
 
-      <div><button id="tt-reset" class="tt-quiet" type="button">↺ Start over</button></div>
+      <details class="tt-card" id="tt-prefs">
+        <summary>Preview &amp; controls</summary>
+        <label class="tt-check" style="margin-top:4px"><input type="checkbox" id="tt-outline"><span>Outline images that don't fill their area<small>Draws a dashed border at the image's edge when it leaves a gap. Preview only, never exported.</small></span></label>
+        <div class="tt-field" style="margin-top:12px"><span class="tt-label" id="tt-step-label">Zoom step per scroll notch or <kbd>+</kbd>/<kbd>−</kbd></span>
+          <div class="tt-seg tt-seg-4" role="group" aria-labelledby="tt-step-label">
+            <button type="button" data-step="1" aria-pressed="false">1%</button>
+            <button type="button" data-step="2" aria-pressed="true">2%</button>
+            <button type="button" data-step="5" aria-pressed="false">5%</button>
+            <button type="button" data-step="10" aria-pressed="false">10%</button>
+          </div>
+        </div>
+        <dl class="tt-keys">
+          <dt><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></dt><dd>Nudge the selected image (<kbd>Shift</kbd> for bigger steps)</dd>
+          <dt><kbd>+</kbd> <kbd>−</kbd></dt><dd>Zoom the selected image</dd>
+          <dt><kbd>Alt</kbd>/<kbd>⌥</kbd></dt><dd>Hold while zooming for ⅕ steps</dd>
+          <dt><kbd>0</kbd></dt><dd>Reset the selected image's framing</dd>
+          <dt><kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>S</kbd></dt><dd>Download PNG</dd>
+        </dl>
+      </details>
+
+      <div class="tt-footer"><button id="tt-reset" class="tt-quiet" type="button">↺ Start over</button></div>
     </div>
 
     <div class="tt-preview">
       <div class="tt-canvas-wrap"><canvas id="tt-canvas" width="1920" height="1080" tabindex="0" aria-label="Split image preview. Drag to crop, scroll to zoom, drag a divider to move it."></canvas></div>
-      <div class="tt-export"><span class="tt-dims" id="tt-dims">1920 × 1080</span><input id="tt-filename" type="text" value="split-image.png" aria-label="File name" spellcheck="false"><button id="tt-download" class="tt-primary" title="Download PNG (⌘/Ctrl+S)">Download PNG</button></div>
+      <div class="tt-export"><div class="tt-namefield"><span class="tt-dims" id="tt-dims">1920 × 1080</span><input id="tt-filename" type="text" value="split-image.png" aria-label="File name" spellcheck="false"></div><button id="tt-download" class="tt-primary" title="Download PNG (⌘/Ctrl+S)"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M2.5 13.5h11"/></svg>Download PNG</button></div>
       <p class="tt-hint tt-bg-hint" id="tt-bg-hint" hidden><span class="tt-swatch" id="tt-bg-hint-swatch"></span><span id="tt-bg-hint-text"></span></p>
-      <p class="tt-hint">Drag an image to crop it · scroll or pinch to zoom (hold <kbd>Alt</kbd>/<kbd>⌥</kbd> for ⅕ steps) · drag a divider to move it · double-click to reset · click an image then use arrow keys to nudge (<kbd>Shift</kbd> for bigger steps).</p>
+      <ul class="tt-tips">
+        <li><b>Drag</b> an image to reposition</li>
+        <li><b>Scroll</b> or pinch to zoom</li>
+        <li><b>Drag a round handle</b> to resize</li>
+        <li><b>Double-click</b> to reset</li>
+        <li><b>Click</b> an empty area to choose a file</li>
+      </ul>
     </div>
   </section>
 
@@ -194,7 +310,7 @@
     const fmt=v=>String(Math.round(v*10)/10);
     const isDivider=mode=>typeof mode==='string';
     const activeSlots=()=>state.images.slice(0,state.count);
-    function syncControls(keys){keys.forEach(k=>{$$(`[data-bind="${k}"]`).forEach(el=>el.value=state[k]);$$(`[data-value="${k}"]`).forEach(el=>el.textContent=fmt(state[k]))})}
+    function syncControls(keys){keys.forEach(k=>{$$(`[data-bind="${k}"]`).forEach(el=>el.value=state[k]);$$(`[data-value="${k}"]`).forEach(el=>el.textContent=fmt(state[k]))});if(typeof syncPresets==='function')syncPresets()}
 
     // --- layout geometry ---
     // Every divider is a straight line (rotated by the shared angle). Each image's region is the frame clipped by
@@ -310,11 +426,11 @@
       if(t.image){
         const r=coverRect(i,g);ctx.drawImage(t.image,r.x,r.y,r.w,r.h);
         // dashed edge wherever the image stops short of its region
-        if(!exporting&&!covers(i,g)&&!state.fill){ctx.lineWidth=2*k;ctx.setLineDash([7*k,5*k]);ctx.strokeStyle='rgba(0,0,0,.7)';ctx.strokeRect(r.x,r.y,r.w,r.h);ctx.lineDashOffset=6*k;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.strokeRect(r.x,r.y,r.w,r.h)}
+        if(!exporting&&showOutline&&!covers(i,g)&&!state.fill){ctx.lineWidth=2*k;ctx.setLineDash([7*k,5*k]);ctx.strokeStyle='rgba(0,0,0,.7)';ctx.strokeRect(r.x,r.y,r.w,r.h);ctx.lineDashOffset=6*k;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.strokeRect(r.x,r.y,r.w,r.h)}
       }
       else if(!exporting){
         // placeholder label, shrunk to fit narrow regions
-        const [lx,ly]=regionCentre(i,g),b=regionBox(i,g),m=Math.min(w,h),title=`Image ${i+1}`,sub='drop, paste or choose';
+        const [lx,ly]=regionCentre(i,g),b=regionBox(i,g),m=Math.min(w,h),title=`Image ${i+1}`,sub='click, drop or paste';
         let big=Math.max(16*k,m/24),small=Math.max(12*k,m/40);
         ctx.font=`500 ${small}px system-ui,sans-serif`;let bw=Math.max(ctx.measureText(sub).width,big*3.4)+big*1.4,bh=big+small+big*1.1;
         const fit=Math.min(1,(b.x1-b.x0)*.9/bw,(b.y1-b.y0)*.9/bh);big*=fit;small*=fit;bw*=fit;bh*=fit;
@@ -339,6 +455,24 @@
       const r=coverRect(i,g),b=r.f;
       setCentre(i,clamp(r.x+r.w/2,b.x1-r.w/2,b.x0+r.w/2),clamp(r.y+r.h/2,b.y1-r.h/2,b.y0+r.h/2),b);
     }
+    const HANDLE_R=13;
+    // midpoint of the visible divider; in the grid both dividers cross in the middle, so their handles are offset
+    function handlePoint(d,seg){
+      const t=state.layout==='grid'?.25:.5;
+      return [seg[0][0]+(seg[1][0]-seg[0][0])*t,seg[0][1]+(seg[1][1]-seg[0][1])*t];
+    }
+    function drawHandle(d,[x,y],active,g){
+      const k=viewScale(),r=HANDLE_R*k,n=g.lines[d.id].n;
+      ctx.save();ctx.translate(x,y);ctx.rotate(Math.atan2(n[1],n[0]));
+      ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=6*k;ctx.shadowOffsetY=1*k;
+      ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=active?'#2f6fe0':'#ffffff';ctx.fill();
+      ctx.shadowColor='transparent';ctx.lineWidth=1*k;ctx.strokeStyle=active?'#2f6fe0':'rgba(0,0,0,.18)';ctx.stroke();
+      // two chevrons pointing across the divider: the direction it moves
+      ctx.strokeStyle=active?'#ffffff':'#1b1f26';ctx.lineWidth=1.8*k;ctx.lineCap='round';ctx.lineJoin='round';
+      const a=r*.62,b=r*.25,h=r*.34;
+      ctx.beginPath();ctx.moveTo(-b,-h);ctx.lineTo(-a,0);ctx.lineTo(-b,h);ctx.moveTo(b,-h);ctx.lineTo(a,0);ctx.lineTo(b,h);ctx.stroke();
+      ctx.restore();
+    }
     function strokeSegment(seg){ctx.beginPath();ctx.moveTo(...seg[0]);ctx.lineTo(...seg[1]);ctx.stroke()}
     function render(exporting=false){
       const g=geometry();
@@ -352,6 +486,13 @@
       const focus=drag&&isDivider(drag.mode)?drag.mode:hover;
       const active=segments.find(s=>s.d.id===focus);
       if(active){const k=viewScale();ctx.save();ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=3*k;ctx.setLineDash([8*k,6*k]);strokeSegment(active.seg);ctx.restore()}
+      // round grab handles on each divider make it obvious they can be dragged (hidden while panning an image)
+      if(!pinch&&!(drag&&!isDivider(drag.mode)))segments.forEach(s=>drawHandle(s.d,handlePoint(s.d,s.seg),s.d.id===focus,g));
+      // while the canvas has keyboard focus, outline the selected region so arrow keys / +/- have a visible target
+      if(document.activeElement===canvas&&selected!==null&&selected<state.count&&state.count>1&&!(drag&&isDivider(drag.mode))){
+        const k=viewScale(),poly=regionPolygon(selected,0,g);ctx.save();tracePath(poly);ctx.clip();tracePath(poly);
+        ctx.lineWidth=4*k;ctx.strokeStyle='rgba(47,111,224,.95)';ctx.stroke();ctx.restore();
+      }
     }
 
     // --- image loading ---
@@ -403,17 +544,18 @@
       grid:{4:['top left','top right','bottom left','bottom right']},
       big:{3:['large, left','top right','bottom right']}
     };
-    const slotLabel=i=>`Image ${i+1} (${SLOT_NAMES[state.layout][state.count][i]})`;
+    const slotLabel=i=>`Image ${i+1} · ${SLOT_NAMES[state.layout][state.count][i]}`;
     function buildSlots(){
       $('#tt-slots').innerHTML=Array.from({length:state.count},(_,i)=>`
-        <div class="tt-field tt-slot" data-slot="${i}"${i===0?' style="margin-top:0"':''}>
-          <div class="tt-slot-head"><span class="tt-label" data-slot-label></span>
-            <span class="tt-order"><button type="button" class="tt-mini" data-move="-1" title="Move earlier" aria-label="Move image ${i+1} earlier"${i===0?' disabled':''}>↑</button><button type="button" class="tt-mini" data-move="1" title="Move later" aria-label="Move image ${i+1} later"${i===state.count-1?' disabled':''}>↓</button></span></div>
-          <div class="tt-file"><button type="button" class="tt-file-pick">Choose image…</button><span class="tt-file-name"></span><button type="button" class="tt-file-clear" title="Remove image" aria-label="Remove image ${i+1}">✕</button><input type="file" accept="image/*,.heic,.heif" hidden></div>
+        <div class="tt-slot" data-slot="${i}">
+          <div class="tt-file"><button type="button" class="tt-thumb" aria-label="Choose image ${i+1}" tabindex="-1"></button><span class="tt-file-meta"><small><span data-slot-label></span><span class="tt-file-size"></span></small><span class="tt-file-name"></span></span><button type="button" class="tt-file-pick">Choose…</button><button type="button" class="tt-file-clear" title="Remove image" aria-label="Remove image ${i+1}">✕</button><span class="tt-order"><button type="button" class="tt-mini" data-move="-1" title="Move earlier" aria-label="Move image ${i+1} earlier"${i===0?' disabled':''}>▲</button><button type="button" class="tt-mini" data-move="1" title="Move later" aria-label="Move image ${i+1} later"${i===state.count-1?' disabled':''}>▼</button></span><input type="file" accept="image/*,.heic,.heif" hidden></div>
         </div>`).join('');
       $$('[data-slot]').forEach(el=>{
         const i=+el.dataset.slot,input=el.querySelector('input[type="file"]');
         el.querySelector('.tt-file-pick').onclick=()=>input.click();
+        el.querySelector('.tt-thumb').onclick=()=>input.click();
+        // clicking a slot row makes it the target for paste and keyboard nudges
+        el.addEventListener('pointerdown',()=>{if(selected!==i){selected=i;render()}});
         input.onchange=()=>{if(input.files[0])loadInto(i,input.files[0]);input.value=''};
         el.querySelector('.tt-file-clear').onclick=()=>clearSlot(i);
         el.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>moveSlot(i,+b.dataset.move));
@@ -426,7 +568,10 @@
         file.classList.toggle('tt-has-image',!!t.image);
         el.querySelector('[data-slot-label]').textContent=slotLabel(i);
         el.querySelector('.tt-file-name').textContent=t.image?t.name:'No image yet';el.querySelector('.tt-file-name').title=t.name;
-        el.querySelector('.tt-file-clear').hidden=!t.image;el.querySelector('.tt-file-pick').textContent=t.image?'Replace…':'Choose image…';
+        el.querySelector('.tt-file-size').textContent=t.image?` · ${t.image.naturalWidth}×${t.image.naturalHeight}`:'';
+        el.querySelector('.tt-file-size').hidden=!t.image;
+        const thumb=el.querySelector('.tt-thumb');thumb.style.backgroundImage=t.url?`url("${t.url}")`:'';thumb.textContent=t.image?'':'+';
+        el.querySelector('.tt-file-clear').hidden=!t.image;el.querySelector('.tt-file-pick').textContent=t.image?'Replace…':'Choose…';
       });
     }
     function updateSlotHighlight(){$$('[data-slot]').forEach(el=>el.classList.toggle('tt-selected',+el.dataset.slot===selected))}
@@ -439,25 +584,50 @@
         :layout==='grid'?'M8 1v10M1 6h14':'M8 1v10M8 6h7';
       return `<svg viewBox="0 0 16 12" aria-hidden="true"><rect x=".5" y=".5" width="15" height="11" rx="1.5" fill="none" stroke="currentColor"/><path d="${lines}" stroke="currentColor" stroke-width="1.5"/></svg>`;
     }
+    // divider sliders are labelled by the two images they sit between, and show how much room each side gets
     function dividerLabel(d){
-      if(state.layout==='grid')return d.axis==='x'?'Vertical divider':'Horizontal divider';
-      if(state.layout==='big')return d.axis==='x'?'Vertical divider':'Right-hand divider';
-      return state.count===2?'Divider position':`Divider ${d.idx+1} position`;
+      if(state.layout==='grid')return d.axis==='x'?'Left ↔ right column':'Top ↕ bottom row';
+      if(state.layout==='big')return d.axis==='x'?'Large image ↔ right column':'Top right ↕ bottom right';
+      return `Image ${d.idx+1} ${d.axis==='x'?'↔':'↕'} Image ${d.idx+2}`;
     }
+    function dividerShares(d){
+      const s=state.splits[d.axis],v=s[d.idx];
+      if(state.layout==='grid'||state.layout==='big')return [v,100-v];
+      return [v-(s[d.idx-1]??0),(s[d.idx+1]??100)-v];
+    }
+    // tilt presets: icons drawn with the real divider maths so they lean the same way as the preview
+    const TILT_PRESETS=[-10,0,10];
+    function tiltIcon(deg){
+      const axis=state.layout==='h'?'y':'x',a=deg*1.6*Math.PI/180,c=Math.cos(a),s=Math.sin(a),d=axis==='x'?[-s,c]:[c,s],L=axis==='x'?6:8;
+      return `<svg viewBox="0 0 16 12" aria-hidden="true"><rect x=".5" y=".5" width="15" height="11" rx="1.5" fill="none" stroke="currentColor" opacity=".55"/><path d="M${8-d[0]*L} ${6-d[1]*L}L${8+d[0]*L} ${6+d[1]*L}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+    }
+    function buildTiltControls(){
+      const seg=$('#tt-tilt-seg');
+      seg.innerHTML=TILT_PRESETS.map(v=>`<button type="button" data-tilt="${v}" aria-label="${v?`Tilt ${v}°`:'Straight'}" title="${v?`Tilt ${v}°`:'Straight'}">${tiltIcon(v)}</button>`).join('');
+      seg.querySelectorAll('[data-tilt]').forEach(b=>b.onclick=()=>{state.angle=+b.dataset.tilt;syncControls(['angle']);render()});
+      syncPresets();
+    }
+    function syncPresets(){
+      $$('[data-tilt]').forEach(b=>b.setAttribute('aria-pressed',String(Math.abs(state.angle-+b.dataset.tilt)<.01)));
+      $$('[data-line]').forEach(b=>b.setAttribute('aria-pressed',String(state.lineWidth===+b.dataset.line)));
+      $('#tt-line-custom').hidden=!state.lineWidth;
+    }
+    $$('[data-line]').forEach(b=>b.onclick=()=>{state.lineWidth=+b.dataset.line;syncControls(['lineWidth']);render()});
+    $('#tt-div-reset').onclick=()=>{state.splits=defaultSplits(state.layout,state.count);state.angle=0;syncControls(['angle']);syncDividers();render()};
     function buildLayoutControls(){
       const options=LAYOUTS[state.count],seg=$('#tt-layouts');
       seg.classList.toggle('tt-seg-3',options.length===3);
       seg.innerHTML=options.map(l=>`<button type="button" data-layout="${l}" aria-pressed="${l===state.layout}">${layoutIcon(l,state.count)}${LAYOUT_NAMES[l](state.count)}</button>`).join('');
       seg.querySelectorAll('[data-layout]').forEach(b=>b.onclick=()=>setLayout(b.dataset.layout));
-      $('#tt-dividers').innerHTML=layoutSpec().dividers.map(d=>`<div class="tt-field"><label for="tt-div-${d.id}">${dividerLabel(d)} <span data-div-value="${d.id}"></span>%</label><input id="tt-div-${d.id}" data-div="${d.id}" type="range" min="3" max="97" step="0.5" title="Double-click to reset"></div>`).join('');
+      $('#tt-dividers').innerHTML=layoutSpec().dividers.map(d=>`<div class="tt-field"><label for="tt-div-${d.id}">${dividerLabel(d)} <span class="tt-val" data-div-value="${d.id}"></span></label><input id="tt-div-${d.id}" data-div="${d.id}" type="range" min="3" max="97" step="0.5" title="Double-click to reset"></div>`).join('');
       $$('[data-div]').forEach(el=>{
         el.addEventListener('input',()=>{setDivider(el.dataset.div,+el.value);syncDividers();render()});
         el.addEventListener('dblclick',()=>{resetDivider(el.dataset.div);render()});
       });
       $$('[data-count]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.count===state.count)));
-      syncDividers();
+      buildTiltControls();syncDividers();
     }
-    function syncDividers(){layoutSpec().dividers.forEach(d=>{const v=state.splits[d.axis][d.idx],el=$(`[data-div="${d.id}"]`),out=$(`[data-div-value="${d.id}"]`);if(el)el.value=v;if(out)out.textContent=fmt(v)})}
+    function syncDividers(){layoutSpec().dividers.forEach(d=>{const v=state.splits[d.axis][d.idx],el=$(`[data-div="${d.id}"]`),out=$(`[data-div-value="${d.id}"]`);if(el)el.value=v;if(out){const [a,b]=dividerShares(d);out.innerHTML=`<b>${Math.round(a)}%</b> · <b>${Math.round(b)}%</b>`}})}
     function resetDivider(id){state.splits[id[0]][+id.slice(1)]=defaultSplits(state.layout,state.count)[id[0]][+id.slice(1)];syncDividers()}
     function setLayout(layout){state.layout=layout;state.splits=defaultSplits(layout,state.count);buildLayoutControls();updateFileLabels();render()}
     function setCount(n){
@@ -487,10 +657,18 @@
     const hasFiles=e=>e.dataTransfer&&[...e.dataTransfer.types].includes('Files');
     let dragDepth=0;
     // catch drops anywhere on the page, so a missed drop never navigates away and loses work
+    const slotUnder=e=>e.target&&e.target.closest?e.target.closest('[data-slot]'):null;
+    const markDropSlot=el=>$$('[data-slot]').forEach(s=>s.classList.toggle('tt-drop-target',s===el));
     window.addEventListener('dragenter',e=>{if(hasFiles(e)){dragDepth++;root.classList.add('tt-dragging')}});
-    window.addEventListener('dragleave',e=>{if(hasFiles(e)&&--dragDepth<=0){dragDepth=0;root.classList.remove('tt-dragging')}});
-    window.addEventListener('dragover',e=>{if(hasFiles(e)){e.preventDefault();e.dataTransfer.dropEffect='copy'}});
-    window.addEventListener('drop',e=>{if(!hasFiles(e))return;e.preventDefault();dragDepth=0;root.classList.remove('tt-dragging');routeFiles([...e.dataTransfer.files],e.target===canvas?canvasPoint(e):null)});
+    window.addEventListener('dragleave',e=>{if(hasFiles(e)&&--dragDepth<=0){dragDepth=0;root.classList.remove('tt-dragging');markDropSlot(null)}});
+    window.addEventListener('dragover',e=>{if(hasFiles(e)){e.preventDefault();e.dataTransfer.dropEffect='copy';markDropSlot(slotUnder(e))}});
+    window.addEventListener('drop',e=>{
+      if(!hasFiles(e))return;e.preventDefault();dragDepth=0;root.classList.remove('tt-dragging');markDropSlot(null);
+      const files=[...e.dataTransfer.files],slotEl=slotUnder(e);
+      // a single image dropped on a slot row goes into that slot
+      if(slotEl&&files.filter(isImageFile).length===1){loadInto(+slotEl.dataset.slot,files.find(isImageFile));return}
+      routeFiles(files,e.target===canvas?canvasPoint(e):null);
+    });
     document.addEventListener('paste',e=>{
       if(e.target.matches&&e.target.matches('input[type="text"],input[type="number"]')&&e.clipboardData&&[...e.clipboardData.types].includes('text/plain'))return;
       const files=[...(e.clipboardData?.items||[])].filter(i=>i.kind==='file'&&i.type.startsWith('image/')).map(i=>i.getAsFile());
@@ -523,7 +701,7 @@
     // a divider id when the point is on a divider (within ~10 screen px, or the drawn line), else the slot index under it
     function targetAt(px,py,k=1){
       const g=geometry(),tol=Math.max(10,state.lineWidth/2/k+4)*k;let best=null,bestDist=Infinity;
-      for(const d of g.spec.dividers){const seg=dividerSegment(d,g);if(!seg)continue;const dist=distToSegment([px,py],seg);if(dist<=tol&&dist<bestDist){best=d.id;bestDist=dist}}
+      for(const d of g.spec.dividers){const seg=dividerSegment(d,g);if(!seg)continue;const hp=handlePoint(d,seg);if(Math.hypot(px-hp[0],py-hp[1])<=(HANDLE_R+3)*k)return d.id;const dist=distToSegment([px,py],seg);if(dist<=tol&&dist<bestDist){best=d.id;bestDist=dist}}
       return best??slotAt(px,py,g);
     }
     // Keep the image overlapping its region, measured in pixels so a zoomed-in image can still be panned until any of
@@ -549,7 +727,7 @@
     // (trackpad scrolling) scale proportionally, so a single event never jumps more than one step. Trackpad pinches
     // (ctrl+wheel with small deltas) stay continuous. The step size is user-adjustable (remembered per browser);
     // Alt/Option or Shift gives a fifth of it.
-    const ZOOM_STEPS=[1,2,5,10];let zoomStep=5;
+    const ZOOM_STEPS=[1,2,5,10];let zoomStep=2;
     try{const saved=+localStorage.getItem('tt-split-zoom-step');if(ZOOM_STEPS.includes(saved))zoomStep=saved}catch{}
     function setZoomStep(v){zoomStep=v;$$('[data-step]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.step===v)));try{localStorage.setItem('tt-split-zoom-step',String(v))}catch{}}
     $$('[data-step]').forEach(b=>b.onclick=()=>setZoomStep(+b.dataset.step));setZoomStep(zoomStep);
@@ -560,7 +738,13 @@
       const notches=e.deltaMode!==0||Math.abs(d)>=50?Math.sign(d):d/100;
       return Math.pow(1+stepFraction(e.altKey||e.shiftKey),-notches);
     };
-    const cursorFor=mode=>isDivider(mode)?(mode[0]==='x'?'ew-resize':'ns-resize'):drag?'grabbing':'grab';
+    const cursorFor=mode=>isDivider(mode)?(mode[0]==='x'?'ew-resize':'ns-resize'):drag?'grabbing':mode!=null&&!state.images[mode]?.image?'pointer':'grab';
+    // preview-only preference: dashed outline around an image that leaves a gap in its region (off by default)
+    let showOutline=false;
+    try{showOutline=localStorage.getItem('tt-split-outline')==='1'}catch{}
+    $('#tt-outline').checked=showOutline;
+    $('#tt-outline').addEventListener('change',e=>{showOutline=e.target.checked;try{localStorage.setItem('tt-split-outline',showOutline?'1':'0')}catch{}render()});
+    canvas.addEventListener('focus',()=>render());canvas.addEventListener('blur',()=>render());
     // touch pinch: two pointers on the canvas zoom (and pan) the image under their midpoint
     const pointers=new Map();let pinch=null;
     function pinchInfo(){const [a,b]=[...pointers.values()],r=canvas.getBoundingClientRect(),k=canvas.width/r.width;return {dist:Math.hypot(a.x-b.x,a.y-b.y)||1,px:((a.x+b.x)/2-r.left)*k,py:((a.y+b.y)/2-r.top)*k}}
@@ -569,7 +753,7 @@
       pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});try{canvas.setPointerCapture(e.pointerId)}catch{}
       if(pointers.size===2){const p=pinchInfo();pinch={...p,slot:slotAt(p.px,p.py)};selected=pinch.slot;drag=null;render();return}
       if(pointers.size>2)return;
-      const {px,py,k}=canvasPoint(e);const mode=targetAt(px,py,k);drag={mode,x:e.clientX,y:e.clientY};if(!isDivider(mode))selected=mode;canvas.focus({preventScroll:true});canvas.style.cursor=cursorFor(mode);render();
+      const {px,py,k}=canvasPoint(e);const mode=targetAt(px,py,k);drag={mode,x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY};if(!isDivider(mode))selected=mode;canvas.focus({preventScroll:true});canvas.style.cursor=cursorFor(mode);render();
     });
     canvas.addEventListener('pointermove',e=>{
       if(pointers.has(e.pointerId))pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -579,7 +763,13 @@
       moveTarget(drag.mode,(e.clientX-drag.x)*k,(e.clientY-drag.y)*k);drag.x=e.clientX;drag.y=e.clientY;render();
     });
     // lifting one finger of a pinch ends it without turning the remaining finger into a drag (avoids a jump)
-    const endPointer=e=>{pointers.delete(e.pointerId);if(pinch){if(pointers.size<2)pinch=null;if(!pointers.size)render();return}if(!drag)return;drag=null;canvas.style.cursor=cursorFor(hover);render()};
+    const endPointer=e=>{
+      pointers.delete(e.pointerId);if(pinch){if(pointers.size<2)pinch=null;if(!pointers.size)render();return}if(!drag)return;
+      const d=drag;drag=null;canvas.style.cursor=cursorFor(hover);render();
+      // a plain click (no drag) on an empty region opens that slot's file picker
+      if(e.type==='pointerup'&&!isDivider(d.mode)&&!state.images[d.mode].image&&Math.hypot(e.clientX-d.sx,e.clientY-d.sy)<4)
+        $(`[data-slot="${d.mode}"] input[type="file"]`)?.click();
+    };
     canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);
     canvas.addEventListener('pointerleave',()=>{if(!drag&&hover){hover=null;render()}});
     // Safari reports trackpad pinches as gesture events rather than ctrl+wheel
